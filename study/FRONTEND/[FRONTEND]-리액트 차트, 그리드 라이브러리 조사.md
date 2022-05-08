@@ -1,6 +1,8 @@
 # 리액트 차트, 그리드 라이브러리 조사
 
-Amazon Dynamo SDK, Spring Data DynamoDB 를 사용해보면서 느꼈다. 처음 사용해보는 라이브러리는 샘플 프로젝트에서 그냥 사용만 먼저 해보는게 훨씬 낫다. 무턱대고 처음보는 기술을 직접 개발중인 프로젝트에서 TDD로 개발하는 것 말고, 그냥 가벼운 마음으로 시도해보는게 좋다는 것을 확실하게 느꼈다.<br>
+Amazon Dynamo SDK, Spring Data DynamoDB 를 사용해보면서 느꼈다. 처음 사용해보는 라이브러리는 샘플 프로젝트에서 그냥 사용만 먼저 해보는게 훨씬 낫다.<br>
+
+무턱대고 처음보는 기술을 직접 개발중인 프로젝트에서 TDD로 개발하는 것 말고, 그냥 가벼운 마음으로 하나씩 시도해본 후에 프로젝트에 도입해보는 것이 좋다는 것을 확실하게 느꼈다.<br>
 
 <br>
 
@@ -39,7 +41,20 @@ Amazon Dynamo SDK, Spring Data DynamoDB 를 사용해보면서 느꼈다. 처음
 
 <br>
 
-개인적으로는 [RC-TABLE](https://github.com/react-component/table) , [React Table](https://react-table.tanstack.com/) , [Material UI Data Tables](https://github.com/gregnb/mui-datatables) 를 모두 사용해보고 어떤걸 사용할지 결정하게 될 듯 하다. CSV 추출 이런 기능은 서버단에 보내는 요청과, 서버의 응답을 잘 맞추면 된다. 또는 클라이언트 단에서 json 으로 전달받은 데이터를 기반으로 파일 저장 기능을 구현해서 클라이언트 사이드(브라우저)에서의 파일 저장 기능으로 구현하면 된다. 딱히 기본으로 CSV 다운로드가 제공되는 것을 활용하는데에 집착할 필요는 없겠다는 생각이 들었다. <br>
+개인적으로는 [RC-TABLE](https://github.com/react-component/table) , [React Table](https://react-table.tanstack.com/) , [Material UI Data Tables](https://github.com/gregnb/mui-datatables) 를 모두 사용해보고 어떤걸 사용할지 결정하게 될 듯 하다. <br>
+
+CSV 추출 기능은 두가지 방식으로 해결 가능하다. (물론, 지금 당장 구현할 생각은 절대 없다. 이직 후에 깃랩으로 리포지터리를 이관 후에 진행하게 될 듯하다.)<br>
+
+- 서버 사이드 처리
+  - 서버단에 보내는 요청과, 서버의 응답을 잘 맞춘다. 서버에서 응답받은 csv 형식 데이터를 저장하는 기능을 클라이언트 사이드에서 구현. 
+  - 다소 서버사이드에 부하가 심하다는 단점이 있다.
+  - 또는 POI 등의 라이브러리를 사용하는 방식.
+    - 다소 무거운 방식이지만, 아직 그리 대용량 데이터는 사용하지 않는다. 사이드 플젝도 기획을 직전 3개 분기 또는 직전 3개 연도만 검색하게끔 되어 있기에 그리 큰 데이터가 필요하지 않다.
+- 클라이언트 사이드 처리
+  - 서버에서는 json 데이터만을 전달해준다.
+  - 클라이언트 단에서 json 으로 전달받은 데이터를 기반으로 csv/pdf 파일 저장 기능을 구현한다.
+  - 이것이 오히려 더 편한 방식이다. client 라이브러리에서 지원하는 csv/pdf 라이브러리가 꽤 많기 때문이다.
+  - 필요한 데이터를 요청하는 형식을 클라이언트/서버 사이에 잘 맞춰서 API 로 구현하면 굉장히 유용하게 될 듯 싶다.
 
 <br>
 
@@ -53,7 +68,7 @@ Amazon Dynamo SDK, Spring Data DynamoDB 를 사용해보면서 느꼈다. 처음
 - Resuite-Table - [https://github.com/rsuite/rsuite-table](https://github.com/rsuite/rsuite-table)
   - 정렬 기능이 강력하다.
   - Right to Left, 컬럼 테이블 width 조정이 가능하다. 자식노드 확장이 가능하다.
-  - docuemntation 이 잘되어있다.
+  - documentation 이 잘되어있다.
   - 단점) 스타일을 커스터마이징 하기 쉽지 않다.
 - React Table - [https://react-table.tanstack.com/](https://react-table.tanstack.com/)
   - 가볍다. 빠르다. 커스터마이징이 강력하다. 디자인이 심플하다. 커스터마이징이 쉽다. 
