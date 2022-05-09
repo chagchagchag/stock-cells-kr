@@ -28,7 +28,7 @@ RECHARTS를 써봤는데, 일단, 나중에 쓸지도 모르는 기능인 `Sychr
 
 <br>
 
-![ASDF](./img/CHART-STUDY-1-RECHARTS/1.png)
+![SynchronizedChart](./img/CHART-STUDY-1-RECHARTS/1.png)
 
 <br>
 
@@ -135,6 +135,12 @@ class SampleDemoChart2 extends Component {
 
 export default SampleDemoChart2;
 ```
+
+<br>
+
+실행결과
+
+![LineBarAreaComposedChart](./img/CHART-STUDY-1-RECHARTS/2.png)
 
 <br>
 
