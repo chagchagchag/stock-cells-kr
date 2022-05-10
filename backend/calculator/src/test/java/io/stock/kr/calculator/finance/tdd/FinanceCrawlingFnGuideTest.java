@@ -2,8 +2,13 @@ package io.stock.kr.calculator.finance.tdd;
 
 import static org.assertj.core.api.Assertions.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -40,4 +45,44 @@ public class FinanceCrawlingFnGuideTest {
 		String testURL = fnGuideParam.buildUrl();
 		assertThat(testURL).isEqualTo("http://comp.fnguide.com/SVO2/ASP/SVD_Finance.asp?pGb=1&gicode=A005930");
 	}
+
+	// 2) FNGUIDE 접속 체크, FNGUIDE 측 파라미터 변경사항 있는지 체크
+	@Test
+	@DisplayName("FN GUIDE 접속 체크")
+	public void TEST_FNGUIDE_CONNECT_SUCCESSFUL(){
+		String requestUrl = newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, testParameters1());
+
+		Optional<Document> document = getDocument(requestUrl);
+		assertThat(document).isNotEmpty();
+	}
+
+	public Optional<Document> getDocument(String url){
+		try {
+			return Optional.ofNullable(Jsoup.connect(url).get());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Optional.empty();
+	}
+
+	public String newFnGuideUrl(FnGuidePageParam.PageType pageType, List<ParameterPair> parameterPairs){
+		return FnGuidePageParam.builder()
+			.pageType(FnGuidePageParam.PageType.FINANCE)
+			.parameterPairs(parameterPairs)
+			.build()
+			.buildUrl();
+	}
+
+
+
+
+	/**
+	 * (START) 테스트 용도 파라미터 조합, 객체 생성 팩토리 메서드
+	 */
+	public List<ParameterPair> testParameters1(){
+		ParameterPair pGb = new ParameterPair(ParameterType.pGb, "1");
+		ParameterPair gicode = new ParameterPair(ParameterType.gicode, "A005930");
+		return List.of(pGb, gicode);
+	}
+
 }
