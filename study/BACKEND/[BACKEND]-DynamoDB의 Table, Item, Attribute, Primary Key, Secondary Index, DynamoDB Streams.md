@@ -129,15 +129,40 @@ DynamoDB는 `Partition Key`, `Partition key and sort key` 라는 두가지 종�
 ### Partition Key
 
 - 파티션 키라고 하는 하나의 속성으로 구성된 간단한 기본 키
-- DynamoDB는 파티션 키의 값을 내부 해시 함수의 입력으로 사용한다. 해시 함수의 결과값은 항목이 저장될 파티션(DynamoDB 내부의 물리적 스토리지)을 결정합니다.
+- DynamoDB는 파티션 키의 값을 내부 해시 함수의 입력으로 사용한다. 
+- 해시 함수의 결과값은 항목이 저장될 파티션(DynamoDB 내부의 물리적 스토리지)을 결정.
 - 파티션 키만 있는 테이블에서는 두 항목이 동일한 파티션 키 값을 가질 수 없다.
-- `Person` 테이블은 단일 기본키만 있는 테이블이다. `Person` 테이블은 `PersonId` 값을 이용해서 Item 에 접근 가능하다.
+- `People` 테이블은 단일 기본키만 있는 테이블이다. `People` 테이블은 `PersonId` 값을 이용해서 Item 에 접근 가능하다.
 
 <br>
 
 ### Partition Key and Sort Key
 
-점심시간에 정리해야겠군... 
+> 위에서 살펴봤던 `Music` 테이블이 복합키를 가진 테이블의 대표적인 예다.
+
+- 복합 기본키 (composite primary key) 라고 불린다.
+- `Partition Key and Sort Key` 는 두개의 속성(attribute)으로 구성된다.
+- 첫번째 속성(attribute)은 `partition key` 다.
+- 두번째 속성(attribute)은 `sort key` 다.
+
+
+
+- DynamoDB는 파티션 키의 값을 내부 해시 함수의 입력으로 사용한다. 
+- 해시 함수의 결과값은 항목이 저장될 파티션(DynamoDB 내부의 물리적 스토리지)을 결정.
+- 파티션 키만 있는 테이블에서는 두 항목이 동일한 파티션 키 값을 가질 수 없다.
+
+- 모든 item 은 동일한 partition key/value 값과 함께 저장되고, `sort key` 값에 따라 서로 다른 순서로 정렬된다.
+
+
+
+- `partition key and sort key` 가 적용된 테이블은 여러개의 아이템이 같은 `partition key` 를 가질 수 있다. 단, 서로 다른 `sort key` 를 가져야 한다.<br>
+- 위에서 살펴봤던 `Music` 테이블이 복합키를 가진 테이블의 대표적인 예다. `Artist`, `SongTitle` 을 이용해서 Music 테이블에 접근하는 것이 가능핟.
+
+
+
+// 나머지 더 정리하기. 점심시간 다 끝나가서 집회사 동기화를 위한 커밋...
+
+
 
 
 
