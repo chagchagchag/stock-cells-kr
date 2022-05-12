@@ -125,10 +125,14 @@ public class FinanceCrawlingFnGuideTest {
 	// 1) 연도 파싱
 	public Optional<GainLossPeriods> findYearsList(Elements yearlyTableElement){
 		Stream<Element> limit = yearlyTableElement.select("tr").tagName("tr").stream().limit(1);
-		Optional<GainLossPeriods> gainLossPeriods = yearlyTableElement.select("tr").tagName("tr").stream().findFirst()
+		Optional<GainLossPeriods> gainLossPeriods = yearlyTableElement
+			.select("tr").tagName("tr")
+			.stream().findFirst()
 			.map(thtd -> {
-				List<String> data = thtd.select("th").tagName("th").eachText().stream().skip(1).limit(4).collect(
-					Collectors.toList());
+				List<String> data = thtd
+					.select("th").tagName("th").eachText()
+					.stream().skip(1).limit(4)
+					.collect(Collectors.toList());
 
 				GainLossPeriods periods = GainLossPeriods.builder()
 					.firstPrev(data.get(GainLossPeriodType.FIRST_PREV.getIndexAs()))
@@ -177,30 +181,13 @@ public class FinanceCrawlingFnGuideTest {
 		return values;
 	}
 
-	public void someThing(Elements yearlyTableElement){
-		// 1) 연도 파싱
-		Optional<GainLossPeriods> years = findYearsList(yearlyTableElement);
-		years.ifPresent(yearsData-> {
-			// 2) 각 항목 파싱 (매출액, 영업이익, 당기순이익)
-			List<GainLossDto> gainLossList = findGainLossList(yearlyTableElement);
-
-			// yearsData 와 gainLossList 를 인자로 하는 메서드 호출 구문 (collecResult)
-		});
-
-	}
-
-	public void collectResult (List<GainLossPeriods> yearsList, List<GainLossDto> values){
-		System.out.println("values = " + values);
-
+	// 데이터 축과 순서를 살짝 바꿔서 Function<T,R> 을 조합하는 방식으로 변형하기.
+	// 점심시간이 끝나가서 잠시 작업을 멈춰두었다.
+	public void collectData(GainLossPeriods periods, List<GainLossDto> values){
 		Map<GainLossColumn, Integer> columnIndexMap = IntStream
 			.range(0, values.size()).boxed()
 			.collect(Collectors.toMap(i -> values.get(i).getType(), Function.identity()));
 
-		System.out.println("columnIndexMap = " + columnIndexMap);
-
-		// 이 부분... GainLossDto 를 사용하는 부분... 자료형을 조금 더 종류를 줄일 방법있을까?
-		// 그림 그려보고 중복되는 부분 찾아내기.
-		System.out.println("===AAA===");
 		GainLossDto totalProfit = values.get(columnIndexMap.get(GainLossColumn.TotalProfit));
 		BigDecimal firstTotalProfit = totalProfit.getValues().get(GainLossPeriodType.FIRST_PREV.getIndexAs());
 		BigDecimal secondTotalProfit = totalProfit.getValues().get(GainLossPeriodType.SECOND_PREV.getIndexAs());
@@ -220,7 +207,7 @@ public class FinanceCrawlingFnGuideTest {
 		BigDecimal fourthNetIncome = netIncome.getValues().get(GainLossPeriodType.FOURTH_PREV.getIndexAs());
 
 		GainLossData firstGainLoss = GainLossData.builder()
-			.periodValue(yearsList.get(0).getFirstPrev())
+			.periodValue(periods.getFirstPrev())
 			.gainLossPeriodType(GainLossPeriodType.FIRST_PREV)
 			.totalProfit(firstTotalProfit)
 			.operatingProfit(firstOpProfit)
@@ -228,7 +215,7 @@ public class FinanceCrawlingFnGuideTest {
 			.build();
 
 		GainLossData secondGainLoss = GainLossData.builder()
-			.periodValue(yearsList.get(0).getSecondPrev())
+			.periodValue(periods.getSecondPrev())
 			.gainLossPeriodType(GainLossPeriodType.SECOND_PREV)
 			.totalProfit(secondTotalProfit)
 			.operatingProfit(secondOpProfit)
@@ -236,7 +223,7 @@ public class FinanceCrawlingFnGuideTest {
 			.build();
 
 		GainLossData thirdGainLoss = GainLossData.builder()
-			.periodValue(yearsList.get(0).getThirdPrev())
+			.periodValue(periods.getThirdPrev())
 			.gainLossPeriodType(GainLossPeriodType.THIRD_PREV)
 			.totalProfit(thirdTotalProfit)
 			.operatingProfit(thirdOpProfit)
@@ -244,7 +231,7 @@ public class FinanceCrawlingFnGuideTest {
 			.build();
 
 		GainLossData fourthGainLoss = GainLossData.builder()
-			.periodValue(yearsList.get(0).getFourthPrev())
+			.periodValue(periods.getFourthPrev())
 			.gainLossPeriodType(GainLossPeriodType.FOURTH_PREV)
 			.totalProfit(fourthTotalProfit)
 			.operatingProfit(fourthOpProfit)
@@ -257,9 +244,29 @@ public class FinanceCrawlingFnGuideTest {
 			.thirdPrev(thirdGainLoss)
 			.fourthPrev(fourthGainLoss)
 			.build();
+	}
 
-		System.out.println("d = " + d);
-		System.out.println("===");
+	@Test
+	public void TEST_SELECT_GAIN_LOSS_AND_PERIODS(){
+		getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, testParameters1())).ifPresent(document -> {
+			findGainLossSection(document).ifPresent(divGainLossSecctionElement -> {
+					findYearlyTableElement(divGainLossSecctionElement).ifPresent(yearlyTableElement -> {
+
+						// 1) 연도 파싱
+						findYearsList(yearlyTableElement).ifPresent(yearsData-> {
+							System.out.println(yearsData);
+
+							// 2) 각 항목 파싱 (매출액, 영업이익, 당기순이익)
+							List<GainLossDto> gainLossList = findGainLossList(yearlyTableElement);
+							System.out.println(gainLossList);
+
+							// 데이터 처리 축 수정 + Function 조합하는 방식으로 변경하자!!
+							// (점심시간이 다 끝나가서 잠시 패스.)
+							collectData(yearsData, gainLossList);
+						});
+					});
+				});
+		});
 	}
 
 	//=TDD완료후이관예정
