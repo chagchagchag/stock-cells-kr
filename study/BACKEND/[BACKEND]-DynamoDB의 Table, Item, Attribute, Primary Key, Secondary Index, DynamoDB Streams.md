@@ -122,17 +122,36 @@ Attributes
 
 ## Primary Key, Partition Key, Partition Key and sort key
 
+>  공식문서의 설명은 한국/영어문서 모두 조금 이상하고 부자연스럽다. 그래서 내가 이해한대로 정리해두었다.<br>
+
+<br>
+
 테이블을 생성할 때 테이블 이름 외에도 테이블의 기본 키를 지정해야 한다. 기본 키는 테이블의 각 항목을 고유하게 식별한다. 따라서 두 항목이 동일한 키를 가질 수 없다.<br>
 
 DynamoDB는 `Partition Key`, `Partition key and sort key` 라는 두가지 종류의 Primary Key 를 지원한다.<br>
 
+<br>
+
+**파티션 키(Partition Key)**<br>
+
+파티션 키는 Hash Attribute (해시속성)으로도 인식될 수 있다. 해시속성은 다이나모DB 내부의 해시 함수로부터 생성된다. 다이나모 디비는 파티션 키 값을 기준으로 여러 파티션에 데이터를 균등하게 분배한다.<br>
+
+예를 들면 어노테이션 중 `@DynamoDBHashKey` 라는 어노테이션이 있는데, 이것이 여기에 해당된다.<br>
+
+<br>
+
+**정렬 키(Sort Key)**<br>
+
+정렬 키는 Range Attribute (정렬속성)으로도 인식될 수 있다. 정렬속성은 동일한 파티션 키를 가진 항목을 정렬 킷값에 따라 정렬된 순서로 저장하는 방식으로 생성된다.<br>
+
+<br>
+
 ### Partition Key
 
-- 파티션 키라고 하는 하나의 속성으로 구성된 간단한 기본 키
-- DynamoDB는 파티션 키의 값을 내부 해시 함수의 입력으로 사용한다. 
-- 해시 함수의 결과값은 항목이 저장될 파티션(DynamoDB 내부의 물리적 스토리지)을 결정.
+- 파티션 키라고 하는 하나의 속성만으로 구성된 간단한 기본 키
 - 파티션 키만 있는 테이블에서는 두 항목이 동일한 파티션 키 값을 가질 수 없다.
-- `People` 테이블은 단일 기본키만 있는 테이블이다. `People` 테이블은 `PersonId` 값을 이용해서 Item 에 접근 가능하다.
+- DynamoDB는 파티션 키의 값을 해시함수를 이용해 UUID 라는 값으로 변환해 저장한다.
+- 위에서 정리한 `People` 테이블은 단일 기본키만 있는 테이블이다. `People` 테이블은 `PersonId` 값을 이용해서 Item 에 접근 가능하다.
 
 <br>
 
@@ -140,31 +159,19 @@ DynamoDB는 `Partition Key`, `Partition key and sort key` 라는 두가지 종�
 
 > 위에서 살펴봤던 `Music` 테이블이 복합키를 가진 테이블의 대표적인 예다.
 
-- 복합 기본키 (composite primary key) 라고 불린다.
+- composite primary key 라고 불린다.(한국말로는 뭐라고 하는지 잘 모르겠다. 그냥 `복합키` 라고 정리해야 겠다.)
 - `Partition Key and Sort Key` 는 두개의 속성(attribute)으로 구성된다.
 - 첫번째 속성(attribute)은 `partition key` 다.
 - 두번째 속성(attribute)은 `sort key` 다.
 
-
-
-- DynamoDB는 파티션 키의 값을 내부 해시 함수의 입력으로 사용한다. 
-- 해시 함수의 결과값은 항목이 저장될 파티션(DynamoDB 내부의 물리적 스토리지)을 결정.
-- 파티션 키만 있는 테이블에서는 두 항목이 동일한 파티션 키 값을 가질 수 없다.
-
-- 모든 item 은 동일한 partition key/value 값과 함께 저장되고, `sort key` 값에 따라 서로 다른 순서로 정렬된다.
-
-
-
 - `partition key and sort key` 가 적용된 테이블은 여러개의 아이템이 같은 `partition key` 를 가질 수 있다. 단, 서로 다른 `sort key` 를 가져야 한다.<br>
-- 위에서 살펴봤던 `Music` 테이블이 복합키를 가진 테이블의 대표적인 예다. `Artist`, `SongTitle` 을 이용해서 Music 테이블에 접근하는 것이 가능핟.
+- 위에서 살펴봤던 `Music` 테이블이 복합키를 가진 테이블의 대표적인 예다. `Artist`, `SongTitle` 을 이용해서 Music 테이블에 접근하는 것이 가능하다.
 
-
-
-// 나머지 더 정리하기. 점심시간 다 끝나가서 집회사 동기화를 위한 커밋...
-
-
-
-
+<br>
 
 ## Secondary Indexes
+
+### Global Secondary Index
+
+### Local Secondary Index
 
