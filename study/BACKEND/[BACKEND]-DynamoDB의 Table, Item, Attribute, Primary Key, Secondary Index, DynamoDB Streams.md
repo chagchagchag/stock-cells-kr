@@ -59,7 +59,7 @@ There are limits in DynamoDB. For more information, see [Service, Account, and T
 
 <br>
 
-### 주요 기본 용어들
+### 주요 기본 개념들 
 
 **스키마리스(Schemaless)**<br>
 
@@ -96,6 +96,8 @@ There are limits in DynamoDB. For more information, see [Service, Account, and T
 - Global Secondary Index, Local Secondary Index 라는 개념이 있다.
 - `DynamoDB` 의 각 테이블은 Global Secondary Index 20개가 할당되어 있고, Local Secondary Index 는 5개가 할당된다.<br>
 - 다이나모디비는 인덱스를 자동으로 관리한다. 
+  - 만약 `base table` 내에 ITEM 을 추가하거나, 업데이트, 삭제가 발생하면, `DynamoDB` 는 해당 테이블에 대한 ITEM 에 대해 인덱스들을 추가/업데이트/삭제를 진행한다.
+
 
 <br>
 
@@ -232,7 +234,7 @@ Genre, AlbumTitle 으로도 데이터를 쿼리하려는 경우는, Genre, Album
 
   - 다이나모 디비는 기본적으로 `base table` 의 `key` 속성들을 `index`로 투영(project)한다.
 
-  - 위 그림에서 `GenreAlbumTitle` 인덱스는, `Music` 테이블의 key 속성들이 `GenreAlbumTitle` 인덱스 내에도 기본적으로 포함된 것을 보여주고 있다.
+  - 위 그림에서 `GenreAlbumTitle` 인덱스는 `Genre`, `AlbumTitle` 을 기준으로 생성한 인덱스다. 하지만, `Genre`, `AlbumTitle` 속성 외에도 `Music` 테이블의 key 속성들인 `Artist`, `SongTitle` 이  `GenreAlbumTitle` 인덱스 내에 기본적으로 포함된 것을 보여주고 있다.
 
 더 자세한 내용은 [Improving Data Access with Secondary Indexes](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/SecondaryIndexes.html) 을 참고하자.<br>
 
