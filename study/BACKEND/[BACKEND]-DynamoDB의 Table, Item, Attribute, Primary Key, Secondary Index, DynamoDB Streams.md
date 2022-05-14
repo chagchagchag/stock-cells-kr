@@ -36,20 +36,20 @@ There are limits in DynamoDB. For more information, see [Service, Account, and T
 
 ### Tables, Items, Attributes
 
-Tables
+**Tables**
 
 - 일반적인 Database 와 유사하게 DynamoDB는 데이터를 테이블에 저장한다.
 
 <br>
 
-Items
+**Items**
 
 - 데이터베이스에서 이야기하는 테이블의 각 행을 DynamoDB 에서는 Item 이라고 이야기한다.
 - Item(=로우) 은 Attribute(=컬럼)들의 집합이고, 다른 Item(=로우)들과는 유일하게 다르게 식별될 수 있어야 한다.
 
 <br>
 
-Attributes
+**Attributes**
 
 - 데이터베이스에서 흔히 이야기하는 컬럼을 DynamoDB에서는 Attribute 라고 이야기한다.
 - 각 Item(=로우)은 하나 또는 하나 이상의 Attribute(=컬럼)으로 구성된다.
@@ -60,27 +60,41 @@ Attributes
 
 ### 주요 기본 용어들
 
-스키마리스(Schemaless)
+**스키마리스(Schemaless)**<br>
 
 - 기본키 또는 고유 식별키 조합을 제외하고, 스키마가 없는 형식을 스키마리스하다고 이야기한다.
 - 기본키/기본키 조합을 제외한 Attribute 들에 대해 데이터 유형을 미리 정의할 필요가 없다.
 
 <br>
 
-스칼라 속성 (Scalar Attribute)
+**스칼라 속성 (Scalar Attribute)**<br>
 
 - 하나의 값만 가질 수 있는 속성을 의미한다.
 - 문자열, 숫자가 스칼라 속성의 일반적인 예이다.
 
 <br>
 
-중첩된 속성(Nested Attribute)
+**중첩된 속성(Nested Attribute)**<br>
 
 - 속성(Attribute) 내에 하나의 Attribute를 더 선언하는 것을 의미한다.
 - 쉽게 이야기해서 중첩된 속성(Attribute)을 의미한다.
 - DynamoDB는 최대 32단계까지 중첩된 속성을 지원한다.
 
 <br>
+
+**base table**<br>
+
+- 어떤 인덱스가 있다고 할때, 그 인덱스를 소유하고 있는 테이블을 보통 `base table` 이라고 부른다.<br>
+
+<br>
+
+**인덱스**<br>
+
+- 다이나모디비는 인덱스를 필수적으로 필요로 하는 것은 아니다.
+- 인덱스는 항상 테이블에 속하는 개념이다.
+- Global Secondary Index, Local Secondary Index 라는 개념이 있다.
+- `DynamoDB` 의 각 테이블은 Global Secondary Index 20개가 할당되어 있고, Local Secondary Index 는 5개가 할당된다.<br>
+- 다이나모디비는 인덱스를 자동으로 관리한다. 
 
 <br>
 
@@ -171,7 +185,54 @@ DynamoDB는 `Partition Key`, `Partition key and sort key` 라는 두가지 종�
 
 ## Secondary Indexes
 
-### Global Secondary Index
+`Secondary Indexes` 라는 것은 보조인덱스를 의미한다. 기본키(Primary Key)에 대한 쿼리 외에도 보조 인덱스를 대체키로해 테이블의 데이터를 쿼리하는 것이 가능하다.<br>
 
-### Local Secondary Index
+DynamoDB는 인덱스를 반드시 필요로 하는 DB는 아니다. 하지만, 인덱스를 사용해 데이터를 쿼리하거나, 테이블에 보조인덱스를 만들어 테이블에서와 동일한 방식으로 인덱스를 이용해서 데이터를 읽는 것이 가능하다.<br>
 
+<br>
+
+DynamoDB 에는 두 가지 종류의 인덱스가 있다.<br>
+
+<br>
+
+**Global Secondary Index**<br>
+
+- Partition key and Sort Key 가 있는 인덱스를 의미한다. 즉, 보조키가 있는 인덱스를 의미한다.
+
+**Local Secondary Index**<br>
+
+- Partition Key 는 같지만, Sort Key 는 다른 인덱스.
+- 이건 무슨 뜻인지 조금 이해가 안간다. 뒤의 내용을 정리하면서 조금씩 파악하게 될 듯 하다.
+
+<br>
+
+`DynamoDB` 의 각 테이블은 Global Secondary Index 20개가 할당되고, Local Secondary Index 는 5개가 할당된다.<br>
+
+위에서 살펴봤었던 `Music` 테이블은 `Artist` (파티션키) 로 데이터 항목을 쿼리하거나 또는 Partition and Sort Key 인 Artist and SongTitle 으로 데이터를 쿼리할 수 있다.<br>
+
+Genre, AlbumTitle 으로도 데이터를 쿼리하려는 경우는, Genre, AlbumTitle 에 인덱스를 만들어서 Music 테이블을 쿼리하는 방식으로 인덱스를 쿼리하면 된다.<br>
+
+<br>
+
+**예제) `Music` 테이블이 `GenreAlbumTitle` 이라는 이름으로 새로운 형식의 인덱스를 사용하는 경우에 대한 예제**
+
+![이미지](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/images/HowItWorksGenreAlbumTitle.png)
+
+이 부분 역시 공식문서의 설명을 그대로 번역하기에는 너무나 어색하고, 이상한 표현들이 많아서 결국... 주관적인 관점으로 정리해봤다.
+
+- 인덱스는 언제나 항상 개별 테이블에 소속된다. 
+- 어떤 인덱스가 있다고 할때, 그 인덱스를 소유하고 있는 테이블을 보통 `base table` 이라고 부른다.
+- `DynamoDB` 는 인덱스들을 자동으로 관리한다.
+  - 만약 `base table` 내에 ITEM 을 추가하거나, 업데이트, 삭제가 발생하면, `DynamoDB` 는 해당 테이블에 대한 ITEM 에 대해 인덱스들을 추가/업데이트/삭제를 진행한다.
+
+- 어떤 `base table` 에 인덱스를 새로 만들어야 할 때, 어떤 어트리뷰트들이 복사되어야 하는지, Projection 되어야 하는지를 정의해야 한다.
+
+- base table 에서 index로 기본적으로 투영(project)되는 속성들
+
+  - 다이나모 디비는 기본적으로 `base table` 의 `key` 속성들을 `index`로 투영(project)한다.
+
+  - 위 그림에서 `GenreAlbumTitle` 인덱스는, `Music` 테이블의 key 속성들이 `GenreAlbumTitle` 인덱스 내에도 기본적으로 포함된 것을 보여주고 있다.
+
+더 자세한 내용은 [Improving Data Access with Secondary Indexes](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/SecondaryIndexes.html) 을 참고하자.<br>
+
+<br>
