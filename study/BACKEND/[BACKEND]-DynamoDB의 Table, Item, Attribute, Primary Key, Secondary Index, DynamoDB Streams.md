@@ -200,12 +200,15 @@ DynamoDB 에는 두 가지 종류의 인덱스가 있다.<br>
 
 **Global Secondary Index**<br>
 
-- Partition key and Sort Key 가 있는 인덱스를 의미한다. 즉, 보조키가 있는 인덱스를 의미한다.
+- 다른 문서에 따로 정리 중. ( [DynamoDB GSI (Global Secondary Index)](https://github.com/soon-good/kr-stock-calculator/blob/main/study/BACKEND/%5BBACKEND%5D%20DynamoDB%20GSI%20(Global%20Secondary%20Index).md) )
+- 참고) [DynamoDB에서 글로벌 보조 인덱스 사용 - Amazon DynamoDB](https://docs.aws.amazon.com/ko_kr/amazondynamodb/latest/developerguide/GSI.html) 
+
+<br>
 
 **Local Secondary Index**<br>
 
-- Partition Key 는 같지만, Sort Key 는 다른 인덱스.
-- 이건 무슨 뜻인지 조금 이해가 안간다. 뒤의 내용을 정리하면서 조금씩 파악하게 될 듯 하다.
+- 다른 문서에 따로 정리 중. ( [DynamoDB LSI (Local Secondary Index)](https://github.com/soon-good/kr-stock-calculator/blob/main/study/BACKEND/%5BBACKEND%5D%20DynamoDB%20LSI%20(Local%20Secondary%20Index).md) )
+- 참고) [로컬 보조 인덱스 - Amazon DynamoDB](https://docs.aws.amazon.com/ko_kr/amazondynamodb/latest/developerguide/LSI.html) 
 
 <br>
 
