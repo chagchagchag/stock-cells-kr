@@ -142,6 +142,7 @@ $ aws dynamodb query \
 <br>
 
 `--index-name`<br>
+
 - Local Secondary Index 으로 생성해둔 `UserAmountIndex` 를 `--index-name` 의 옵션에 대한 값으로 지정했다.
 - 즉, 위의 쿼리 수행시 `UserAmountIndex` 라는 Local Secondary Index 를 사용하겠음을 명시하고 있다.
 
