@@ -48,10 +48,10 @@ public class GainLossCrawlerService {
     };
 
     // 연간 조회
-    public List<GainLossValue> findGainLossDataYearly(){
+    public List<GainLossValue> findGainLossDataYearly(String companyCode){
         List<GainLossValue> list = new ArrayList<>();
 
-        getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, newGainLossPageParameters())).ifPresent(document -> {
+        getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, newGainLossPageParameters(companyCode))).ifPresent(document -> {
             findGainLossSection(document).ifPresent(divGainLossSectionElement -> {
                 findYearlyTableElement(divGainLossSectionElement).ifPresent(yearlyTableElement -> {
 
@@ -72,10 +72,10 @@ public class GainLossCrawlerService {
     }
 
     // 분기별 조회
-    public List<GainLossValue> findGainLossDataQuarterly(){
+    public List<GainLossValue> findGainLossDataQuarterly(String companyCode){
         List<GainLossValue> list = new ArrayList<>();
 
-        getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, newGainLossPageParameters())).ifPresent(document -> {
+        getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, newGainLossPageParameters(companyCode))).ifPresent(document -> {
             findGainLossSection(document).ifPresent(divGainLossSectionElement -> {
                 findQuarterlyTableElement(divGainLossSectionElement).ifPresent(quarterlyTableElement -> {
 
@@ -214,9 +214,9 @@ public class GainLossCrawlerService {
                 .build();
     }
 
-    public List<ParameterPair> newGainLossPageParameters(){
+    public List<ParameterPair> newGainLossPageParameters(String companyCode){
         ParameterPair pGb = new ParameterPair(ParameterType.pGb, "1");
-        ParameterPair gicode = new ParameterPair(ParameterType.gicode, "A005930");
+        ParameterPair gicode = new ParameterPair(ParameterType.gicode, companyCode);
         return List.of(pGb, gicode);
     }
 }
