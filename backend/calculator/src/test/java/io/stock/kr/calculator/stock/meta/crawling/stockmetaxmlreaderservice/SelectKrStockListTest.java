@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.finance.tdd;
+package io.stock.kr.calculator.stock.meta.crawling.stockmetaxmlreaderservice;
 
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaXmlReaderService;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
@@ -18,8 +18,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FinanceCrawlingCompanyListReadTest {
-    Logger logger = LoggerFactory.getLogger(FinanceCrawlingCompanyListReadTest.class);
+public class SelectKrStockListTest {
+    Logger logger = LoggerFactory.getLogger(SelectKrStockListTest.class);
 
     record CompanyMeta(String ticker, String companyName, String vendorCode){}
 
