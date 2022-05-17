@@ -11,6 +11,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.stock.kr.calculator.finance.gainloss.GainLossValue;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -113,6 +114,19 @@ public class FinanceCrawlingFnGuideTest {
 		return Optional.ofNullable(yearlyTableElement);
 	}
 
+	public Optional<Elements> findQuarterlyTableElement(Elements divGainLossSection){
+		// 포괄 손익 계산 DIV
+		ElementSelectorPair yearlyGainLossDiv = ofElementSelectorPair(ElementType.DIV, SelectorType.ID, SpecifierType.FULL, quarterlyGainLossTableSelector);
+		// 손익 계산 내에서 table 을 파싱
+		ElementSelectorPair yearlyGainLossTable = ofElementSelectorPair(ElementType.TABLE, SelectorType.NONE, SpecifierType.NONE, "table");
+
+		Elements yearlyTableElement = divGainLossSection
+				.select(yearlyGainLossDiv.ofSelector().toString())
+				.select(yearlyGainLossTable.ofSelector().toString());
+
+		return Optional.ofNullable(yearlyTableElement);
+	}
+
 	// 1) 연도 파싱
 	public Optional<GainLossPeriods> findYearsList(Elements yearlyTableElement){
 		Stream<Element> limit = yearlyTableElement.select("tr").tagName("tr").stream().limit(1);
@@ -149,28 +163,39 @@ public class FinanceCrawlingFnGuideTest {
 		return null;
 	};
 
-
-	record GainLossTemp (GainLossColumn type,
-						  BigDecimal firstPrevData,
-						  BigDecimal secondPrevData,
-						  BigDecimal thirdPrevData,
-						  BigDecimal fourthPrevData){
-
-	}
-
 	@Test
 	@DisplayName("매출액, 영업이익, 당기순이익 (손익) 크롤링 - 연간")
-	public void TEST_SELECT_GAIN_LOSS_AND_PERIODS(){
+	public void TEST_SELECT_GAIN_LOSS_AND_PERIODS_YEARLY(){
 		getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, testParameters1())).ifPresent(document -> {
-			findGainLossSection(document).ifPresent(divGainLossSecctionElement -> {
-				findYearlyTableElement(divGainLossSecctionElement).ifPresent(yearlyTableElement -> {
+			findGainLossSection(document).ifPresent(divGainLossSectionElement -> {
+				findYearlyTableElement(divGainLossSectionElement).ifPresent(yearlyTableElement -> {
 
 					// 1) 연도 파싱
 					findYearsList(yearlyTableElement).ifPresent(yearsData-> {
 						System.out.println(yearsData);
 
 						// 2) 각 항목 파싱 (매출액, 영업이익, 당기순이익)
-						List<GainLossTemp> gainLossList2 = findGainLossList2(yearlyTableElement);
+						List<GainLossValue> gainLossList2 = findGainLossList2(yearlyTableElement);
+						System.out.println(gainLossList2);
+					});
+				});
+			});
+		});
+	}
+
+	@Test
+	@DisplayName("매출액, 영업이익, 당기순이익 (손익) 크롤링 - 분기")
+	public void TEST_SELECT_GAIN_LOSS_AND_PERIODS_QUARTERLY(){
+		getDocument(newFnGuideUrl(FnGuidePageParam.PageType.FINANCE, testParameters1())).ifPresent(document -> {
+			findGainLossSection(document).ifPresent(divGainLossSectionElement -> {
+				findQuarterlyTableElement(divGainLossSectionElement).ifPresent(quarterlyTableElement -> {
+
+					// 1) 연도 파싱
+					findYearsList(quarterlyTableElement).ifPresent(yearsData-> {
+						System.out.println(yearsData);
+
+						// 2) 각 항목 파싱 (매출액, 영업이익, 당기순이익)
+						List<GainLossValue> gainLossList2 = findGainLossList2(quarterlyTableElement);
 						System.out.println(gainLossList2);
 					});
 				});
@@ -179,8 +204,8 @@ public class FinanceCrawlingFnGuideTest {
 	}
 
 	// 2) 각 항목 파싱 (매출액, 영업이익, 당기순이익)
-	List<GainLossTemp> findGainLossList2(Elements yearlyTableElement){
-		return yearlyTableElement.select("tr").tagName("tr")
+	List<GainLossValue> findGainLossList2(Elements tableElement){
+		return tableElement.select("tr").tagName("tr")
 				.stream().skip(1)
 				.filter(thtd -> {
 					if (thtd.tagName("th").select("div").text().equals("매출액")) return true;
@@ -201,7 +226,7 @@ public class FinanceCrawlingFnGuideTest {
 					BigDecimal thirdPeriodValue = commaStringToDecimal.apply(strings.get(GainLossPeriodType.THIRD_PREV.getIndexAs()));
 					BigDecimal fourthPeriodValue = commaStringToDecimal.apply(strings.get(GainLossPeriodType.FOURTH_PREV.getIndexAs()));
 
-					return new GainLossTemp(gainLossColumn, firstPeriodValue, secondPeriodValue, thirdPeriodValue, fourthPeriodValue);
+					return new GainLossValue(gainLossColumn, firstPeriodValue, secondPeriodValue, thirdPeriodValue, fourthPeriodValue);
 				})
 				.collect(Collectors.toList());
 	}
