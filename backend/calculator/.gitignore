@@ -39,3 +39,6 @@ out/
 ## docker dyanmodb
 **/dynamodb_local_latest
 **/dynamodb_local_latest.zip
+
+## dart
+**/CORPCODE.xml
