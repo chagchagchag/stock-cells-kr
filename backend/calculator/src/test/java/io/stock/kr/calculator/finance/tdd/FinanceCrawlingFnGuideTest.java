@@ -11,7 +11,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.stock.kr.calculator.finance.gainloss.GainLossValue;
+import io.stock.kr.calculator.finaince.gainloss.crawler.GainLossCrawlerService;
+import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossValue;
+import org.assertj.core.api.Assertions;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,9 +21,9 @@ import org.jsoup.select.Elements;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import io.stock.kr.calculator.finance.gainloss.GainLossColumn;
-import io.stock.kr.calculator.finance.gainloss.GainLossPeriodType;
-import io.stock.kr.calculator.finance.gainloss.GainLossPeriods;
+import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossColumn;
+import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossPeriodType;
+import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossPeriods;
 import io.stock.kr.calculator.request.crawling.html.ElementSelectorPair;
 import io.stock.kr.calculator.request.crawling.html.ElementType;
 import io.stock.kr.calculator.request.crawling.html.SelectorType;
@@ -162,6 +164,16 @@ public class FinanceCrawlingFnGuideTest {
 		}
 		return null;
 	};
+
+	@Test
+	public void 패키지_이동_테스트(){
+		GainLossCrawlerService service = new GainLossCrawlerService();
+		List<GainLossValue> gainLossDataYearly = service.findGainLossDataYearly();
+		assertThat(gainLossDataYearly).isNotEmpty();
+
+		List<GainLossValue> gainLossDataQuarterly = service.findGainLossDataQuarterly();
+		assertThat(gainLossDataQuarterly).isNotEmpty();
+	}
 
 	@Test
 	@DisplayName("매출액, 영업이익, 당기순이익 (손익) 크롤링 - 연간")

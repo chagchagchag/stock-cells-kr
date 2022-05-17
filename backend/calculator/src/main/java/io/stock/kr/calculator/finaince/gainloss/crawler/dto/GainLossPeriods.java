@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.finance.gainloss;
+package io.stock.kr.calculator.finaince.gainloss.crawler.dto;
 
 import lombok.Builder;
 import lombok.Getter;
