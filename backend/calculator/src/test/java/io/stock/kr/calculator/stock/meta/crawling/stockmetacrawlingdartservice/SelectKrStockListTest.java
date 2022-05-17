@@ -1,6 +1,6 @@
-package io.stock.kr.calculator.stock.meta.crawling.stockmetaxmlreaderservice;
+package io.stock.kr.calculator.stock.meta.crawling.stockmetacrawlingdartservice;
 
-import io.stock.kr.calculator.stock.meta.crawling.StockMetaXmlReaderService;
+import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -17,7 +17,7 @@ public class SelectKrStockListTest {
 
     @Test
     public void 정상적인_종목리스트_XML파일을_올바르게_파싱하는지_검증한다(){
-        StockMetaXmlReaderService service = new StockMetaXmlReaderService();
+        StockMetaCrawlingDartService service = new StockMetaCrawlingDartService();
         List<StockMetaDto> stockMetaList = service.selectKrStockList("CORPCODE-TEST.xml");
         assertThat(stockMetaList).isNotEmpty();
         logger.info(stockMetaList.toString());

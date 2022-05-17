@@ -25,7 +25,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @Service
-public class StockMetaXmlReaderService {
+public class StockMetaCrawlingDartService {
     Function<Node, String> getTextContent = node -> {
         return Optional
                 .ofNullable(node.getTextContent())
