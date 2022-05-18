@@ -6,6 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.List;
 
 @EnableScan
-public interface StockMetaRepository extends CrudRepository<StockMeta, String> {
-    List<StockMeta> findAll();
+public interface StockMetaRepository extends CrudRepository<StockMetaDocument, String> {
+    List<StockMetaDocument> findAll();
 }

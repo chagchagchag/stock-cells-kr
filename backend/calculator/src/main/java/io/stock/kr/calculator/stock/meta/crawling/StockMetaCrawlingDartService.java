@@ -1,7 +1,7 @@
 package io.stock.kr.calculator.stock.meta.crawling;
 
 import io.stock.kr.calculator.common.types.CrawlingVendorType;
-import io.stock.kr.calculator.dynamo.StockMeta;
+import io.stock.kr.calculator.dynamo.StockMetaDocument;
 import io.stock.kr.calculator.stock.meta.dynamo.StockMetaDynamoDBMapper;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
 import lombok.extern.slf4j.Slf4j;
@@ -84,9 +84,9 @@ public class StockMetaCrawlingDartService {
     }
 
     public void batchWriteStockList(List<StockMetaDto> stockList){
-        List<StockMeta> stocks = stockList.stream()
+        List<StockMetaDocument> stocks = stockList.stream()
                 .map(stockMetaDto -> {
-                    return StockMeta.builder()
+                    return StockMetaDocument.builder()
                             .ticker(stockMetaDto.getTicker())
                             .companyName(stockMetaDto.getCompanyName())
                             .vendorCode(stockMetaDto.getVendorCode())

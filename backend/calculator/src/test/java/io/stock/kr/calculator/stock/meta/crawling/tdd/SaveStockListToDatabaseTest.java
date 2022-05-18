@@ -7,7 +7,7 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import io.stock.kr.calculator.dynamo.StockMeta;
+import io.stock.kr.calculator.dynamo.StockMetaDocument;
 import io.stock.kr.calculator.dynamo.StockMetaRepository;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
@@ -51,14 +51,14 @@ public class SaveStockListToDatabaseTest {
 
     public void deleteTableIfExist(){
         DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                .generateDeleteTableRequest(StockMeta.class, DynamoDBMapperConfig.DEFAULT);
+                .generateDeleteTableRequest(StockMetaDocument.class, DynamoDBMapperConfig.DEFAULT);
 
         TableUtils.deleteTableIfExists(amazonDynamoDB, deleteTableRequest);
     }
 
     public void createTableRequest(){
         CreateTableRequest createTableRequest = dynamoDBMapper
-                .generateCreateTableRequest(StockMeta.class, DynamoDBMapperConfig.DEFAULT)
+                .generateCreateTableRequest(StockMetaDocument.class, DynamoDBMapperConfig.DEFAULT)
                 .withProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
 
         TableUtils.createTableIfNotExists(amazonDynamoDB, createTableRequest);
@@ -70,7 +70,7 @@ public class SaveStockListToDatabaseTest {
 
         service.batchWriteStockList(stockList);
 
-        List<StockMeta> list = repository.findAll();
+        List<StockMetaDocument> list = repository.findAll();
 
         assertThat(list).isNotEmpty();
     }

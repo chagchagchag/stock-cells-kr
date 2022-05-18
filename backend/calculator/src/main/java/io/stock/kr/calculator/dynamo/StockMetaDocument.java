@@ -15,8 +15,8 @@ import org.springframework.data.annotation.Id;
 @ToString
 @EnableScan
 @DynamoDBTable(tableName = "StockMeta")
-public class StockMeta {
-    public StockMeta(){}
+public class StockMetaDocument {
+    public StockMetaDocument(){}
 
     @Id
     @Getter @Setter
@@ -37,7 +37,7 @@ public class StockMeta {
     private CrawlingVendorType vendorType;
 
     @Builder
-    public StockMeta(String ticker, String companyName, String vendorCode, CrawlingVendorType vendorType){
+    public StockMetaDocument(String ticker, String companyName, String vendorCode, CrawlingVendorType vendorType){
         this.ticker = ticker;
         this.companyName = companyName;
         this.vendorCode = vendorCode;
