@@ -1,6 +1,8 @@
 package io.stock.kr.calculator.stock.meta.crawling;
 
 import io.stock.kr.calculator.common.types.CrawlingVendorType;
+import io.stock.kr.calculator.dynamo.StockMeta;
+import io.stock.kr.calculator.stock.meta.dynamo.StockMetaDynamoDBMapper;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,18 @@ import java.util.stream.IntStream;
 @Slf4j
 @Service
 public class StockMetaCrawlingDartService {
+
     Function<Node, String> getTextContent = node -> {
         return Optional
                 .ofNullable(node.getTextContent())
                 .orElse("");
     };
+
+    private StockMetaDynamoDBMapper stockMetaDynamoDBMapper;
+
+    public StockMetaCrawlingDartService(StockMetaDynamoDBMapper stockMetaDynamoDBMapper){
+        this.stockMetaDynamoDBMapper = stockMetaDynamoDBMapper;
+    }
 
     /**
      * @param corpCodeFileName : xml 파일명 (확장자는 .xml 이어야만 하고, 바이너리 파일이 아닌 텍스트파일이어야 한다.)
@@ -72,5 +81,20 @@ public class StockMetaCrawlingDartService {
         }
 
         return result;
+    }
+
+    public void batchWriteStockList(List<StockMetaDto> stockList){
+        List<StockMeta> stocks = stockList.stream()
+                .map(stockMetaDto -> {
+                    return StockMeta.builder()
+                            .ticker(stockMetaDto.getTicker())
+                            .companyName(stockMetaDto.getCompanyName())
+                            .vendorCode(stockMetaDto.getVendorCode())
+                            .vendorType(stockMetaDto.getVendorType())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        stockMetaDynamoDBMapper.batchWriteStockMetaList(stocks);
     }
 }

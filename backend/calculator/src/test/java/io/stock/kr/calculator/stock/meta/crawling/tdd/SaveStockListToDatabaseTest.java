@@ -18,10 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test-docker")
@@ -66,29 +65,13 @@ public class SaveStockListToDatabaseTest {
     }
 
     @Test
-    public void 크롤링되어있는_xml_파일을_읽어들여서_디비에_저장하는_작업을_수행한다(){
+    public void 크롤링되어있는_xml_파일을_읽어들여서_디비에_저장하는_작업을_수행(){
         List<StockMetaDto> stockList = service.selectKrStockList("CORPCODE-TEST.xml");
 
-        List<StockMeta> stocks = stockList.stream()
-                .map(stockMetaDto -> {
-                    return StockMeta.builder()
-                            .ticker(stockMetaDto.getTicker())
-                            .companyName(stockMetaDto.getCompanyName())
-                            .vendorCode(stockMetaDto.getVendorCode())
-                            .vendorType(stockMetaDto.getVendorType())
-                            .build();
-                })
-                .collect(Collectors.toList());
+        service.batchWriteStockList(stockList);
 
-        dynamoDBMapper.batchWrite(stocks, new ArrayList<>());
+        List<StockMeta> list = repository.findAll();
 
-        Iterable<StockMeta> stockMetaIter = repository.findAll();
-
-        Iterator<StockMeta> iterator = stockMetaIter.iterator();
-
-        while(iterator.hasNext()){
-            StockMeta next = iterator.next();
-            System.out.println(next);
-        }
+        assertThat(list).isNotEmpty();
     }
 }

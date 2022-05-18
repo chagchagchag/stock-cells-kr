@@ -7,4 +7,5 @@ import java.util.List;
 
 @EnableScan
 public interface StockMetaRepository extends CrudRepository<StockMeta, String> {
+    List<StockMeta> findAll();
 }
