@@ -1,0 +1,12 @@
+version: '3'
+services:
+  redis:
+    image: redis:latest
+    command: redis-server --port 6379
+#    container_name: redis-normal
+    hostname: redis-normal
+    labels:
+      - "name=redis"
+      - "mode=standalone"
+    ports:
+      - 16379:6379
