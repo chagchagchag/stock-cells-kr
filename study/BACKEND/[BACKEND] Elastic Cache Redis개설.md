@@ -2,7 +2,7 @@
 
 > Elastic Cache 는 처음 개설해본다....!!<br>
 >
-> 막상 Elastic Cache를 개설하고나니, 로컬에서는 사실 `docker-compose` 로만 돌려야 한다. 왜냐하면 `Elastic Cache` 는 특정 VPC에서만 접속이 가능하기 때문이다. 따라서 VPC 안에 들어가있는 EC2 를 통해서 접속해야 실제 운영중인 Elastic Cache에 접속이 가능하다.<br>
+> 막상 Elastic Cache를 개설하고나니, 로컬에서는 사실 `docker-compose` 로만 돌려야 한다. 왜냐하면 `Elastic Cache` 는 특정 VPC에서만 접속이 가능하기 때문이다. 즉, VPC 안에 들어가있는 EC2 를 통해서 접속해야 실제 운영중인 Elastic Cache에 접속이 가능하다.<br>
 >
 > 따라서!!! 로컬에서 코드를 돌려보거나, 테스트환경을 구축하는 것이라면 도커에서 redis 를 구축해야한다.<br>
 
