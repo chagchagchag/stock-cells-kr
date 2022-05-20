@@ -13,16 +13,12 @@ import org.springframework.context.annotation.*;
 @Configuration
 @Profile({"test-docker", "test-in-memory"})
 @EnableDynamoDBRepositories(
-        // 추후 도메인 기반 패키지 구조로 전환 예정 (일정상 나중에 하는 것이 맞아서 일단은 주석처리)
-//        basePackages = {
-//                "io.stock.kr.calculator"
-//        },
-//        includeFilters = {
-//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "io.stock.kr.calculator.*.repository.dynamo.*Repository"),
-//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "io.stock.kr.calculator.*.domain.dynamo.*Document")
-//        }
         basePackages = {
-                "io.stock.kr.calculator.dynamo"
+                "io.stock.kr.calculator"
+        },
+        includeFilters = {
+                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "io.stock.kr.calculator.*.repository.dynamo.*Repository"),
+//                @ComponentScan.Filter(type = FilterType.REGEX, pattern = "io.stock.kr.calculator.*.domain.dynamo.*Document")
         }
 )
 public class TestDynamoDbConfig {
