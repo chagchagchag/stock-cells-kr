@@ -28,7 +28,7 @@ public class FSCStockPriceItem {
     public StockPriceRedis toStockPriceRedis(){
         return StockPriceRedis.builder()
                 .tradeDt(this.getBasDt())
-                .srtnCd(this.getSrtnCd())
+                .ticker(this.getSrtnCd())
                 .isinCd(this.getIsinCd())
                 .itmsNm(this.getItmsNm())
                 .mrktCtg(this.getMrktCtg())
