@@ -1,9 +1,9 @@
-package io.stock.kr.calculator.finaince.gainloss.crawler;
+package io.stock.kr.calculator.finance.gainloss.crawler;
 
-import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossColumn;
-import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossPeriodType;
-import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossPeriods;
-import io.stock.kr.calculator.finaince.gainloss.crawler.dto.GainLossValue;
+import io.stock.kr.calculator.finance.gainloss.crawler.dto.GainLossColumn;
+import io.stock.kr.calculator.finance.gainloss.crawler.dto.GainLossPeriodType;
+import io.stock.kr.calculator.finance.gainloss.crawler.dto.GainLossPeriods;
+import io.stock.kr.calculator.finance.gainloss.crawler.dto.GainLossValue;
 import io.stock.kr.calculator.request.crawling.html.ElementSelectorPair;
 import io.stock.kr.calculator.request.crawling.html.ElementType;
 import io.stock.kr.calculator.request.crawling.html.SelectorType;

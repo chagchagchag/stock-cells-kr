@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.finaince.gainloss.crawler.dto;
+package io.stock.kr.calculator.finance.gainloss.crawler.dto;
 
 import java.util.HashMap;
 import java.util.Map;
