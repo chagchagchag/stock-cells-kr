@@ -1,9 +1,10 @@
 package io.stock.kr.calculator.stock.meta.crawling;
 
 import io.stock.kr.calculator.common.types.CrawlingVendorType;
-import io.stock.kr.calculator.dynamo.StockMetaDocument;
-import io.stock.kr.calculator.stock.meta.dynamo.StockMetaDynamoDBMapper;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaDocument;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaDynamoDBMapper;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -36,9 +37,14 @@ public class StockMetaCrawlingDartService {
     };
 
     private StockMetaDynamoDBMapper stockMetaDynamoDBMapper;
+    private StockMetaRepository stockMetaRepository;
 
-    public StockMetaCrawlingDartService(StockMetaDynamoDBMapper stockMetaDynamoDBMapper){
+    public StockMetaCrawlingDartService(
+            StockMetaDynamoDBMapper stockMetaDynamoDBMapper,
+            StockMetaRepository stockMetaRepository
+    ){
         this.stockMetaDynamoDBMapper = stockMetaDynamoDBMapper;
+        this.stockMetaRepository = stockMetaRepository;
     }
 
     /**
@@ -85,16 +91,27 @@ public class StockMetaCrawlingDartService {
 
     public void batchWriteStockList(List<StockMetaDto> stockList){
         List<StockMetaDocument> stocks = stockList.stream()
-                .map(stockMetaDto -> {
-                    return StockMetaDocument.builder()
-                            .ticker(stockMetaDto.getTicker())
-                            .companyName(stockMetaDto.getCompanyName())
-                            .vendorCode(stockMetaDto.getVendorCode())
-                            .vendorType(stockMetaDto.getVendorType())
-                            .build();
-                })
+                .map(this::toStockMetaDocument)
                 .collect(Collectors.toList());
 
         stockMetaDynamoDBMapper.batchWriteStockMetaList(stocks);
+    }
+
+    public void batchDeleteStockList(List<StockMetaDocument> stockList){
+        stockMetaDynamoDBMapper.batchDelete(stockList);
+    }
+
+    public void batchDeleteStockListAll(){
+        List<StockMetaDocument> stockDocList = stockMetaRepository.findAll();
+        stockMetaDynamoDBMapper.batchDelete(stockDocList);
+    }
+
+    public StockMetaDocument toStockMetaDocument(StockMetaDto stockMetaDto){
+        return StockMetaDocument.builder()
+                .ticker(stockMetaDto.getTicker())
+                .companyName(stockMetaDto.getCompanyName())
+                .vendorCode(stockMetaDto.getVendorCode())
+                .vendorType(stockMetaDto.getVendorType())
+                .build();
     }
 }

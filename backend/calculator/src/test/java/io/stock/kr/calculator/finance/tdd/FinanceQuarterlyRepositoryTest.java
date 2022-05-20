@@ -7,8 +7,8 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import io.stock.kr.calculator.dynamo.FinanceGainLossQuarterly;
-import io.stock.kr.calculator.dynamo.FinanceGainLossQuarterlyRepository;
+import io.stock.kr.calculator.finance.gainloss.crawler.repository.dynamo.FinanceGainLossQuarterlyDocument;
+import io.stock.kr.calculator.finance.gainloss.crawler.repository.dynamo.FinanceGainLossQuarterlyRepository;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ public class FinanceQuarterlyRepositoryTest {
     @AfterEach
     public void afterTest(){
         DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                .generateDeleteTableRequest(FinanceGainLossQuarterly.class, DynamoDBMapperConfig.DEFAULT);
+                .generateDeleteTableRequest(FinanceGainLossQuarterlyDocument.class, DynamoDBMapperConfig.DEFAULT);
 
         TableUtils.deleteTableIfExists(amazonDynamoDB, deleteTableRequest);
     }
@@ -58,17 +58,17 @@ public class FinanceQuarterlyRepositoryTest {
     @Test
     public void TEST(){
         DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                .generateDeleteTableRequest(FinanceGainLossQuarterly.class, DynamoDBMapperConfig.DEFAULT);
+                .generateDeleteTableRequest(FinanceGainLossQuarterlyDocument.class, DynamoDBMapperConfig.DEFAULT);
 
         TableUtils.deleteTableIfExists(amazonDynamoDB, deleteTableRequest);
 
         CreateTableRequest request = dynamoDBMapper
-                .generateCreateTableRequest(FinanceGainLossQuarterly.class, DynamoDBMapperConfig.DEFAULT)
+                .generateCreateTableRequest(FinanceGainLossQuarterlyDocument.class, DynamoDBMapperConfig.DEFAULT)
                 .withProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
 
         TableUtils.createTableIfNotExists(amazonDynamoDB, request);
 
-        FinanceGainLossQuarterly msft = FinanceGainLossQuarterly.builder()
+        FinanceGainLossQuarterlyDocument msft = FinanceGainLossQuarterlyDocument.builder()
                 .ticker("MSFT")
                 .priceDate(LocalDateTime.now())
                 .build();
