@@ -7,8 +7,8 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import io.stock.kr.calculator.dynamo.StockMetaDocument;
-import io.stock.kr.calculator.dynamo.StockMetaRepository;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaDocument;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +22,9 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * 기능 완료 후 세부 테스트 게이스 분리 예정
+ */
 @SpringBootTest
 @ActiveProfiles("test-docker")
 public class SaveStockListToDatabaseTest {
