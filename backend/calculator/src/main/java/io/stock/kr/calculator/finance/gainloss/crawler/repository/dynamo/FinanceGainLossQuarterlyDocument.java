@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.dynamo;
+package io.stock.kr.calculator.finance.gainloss.crawler.repository.dynamo;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import io.stock.kr.calculator.common.LocalDateTimeConverter;
@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @EnableScan
 @DynamoDBTable(tableName = "FinanceGainLossQuarter")
 @NoArgsConstructor
-public class FinanceGainLossQuarterly {
+public class FinanceGainLossQuarterlyDocument {
 
     @Id
     @Getter @Setter
@@ -27,7 +27,7 @@ public class FinanceGainLossQuarterly {
     private LocalDateTime priceDate;
 
     @Builder
-    public FinanceGainLossQuarterly(String ticker, LocalDateTime priceDate){
+    public FinanceGainLossQuarterlyDocument(String ticker, LocalDateTime priceDate){
 //    public FinanceGainLossQuarterly(String ticker){
         this.ticker = ticker;
         this.priceDate = priceDate;

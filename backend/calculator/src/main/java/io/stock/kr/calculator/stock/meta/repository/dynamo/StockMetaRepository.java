@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.dynamo;
+package io.stock.kr.calculator.stock.meta.repository.dynamo;
 
 import org.socialsignin.spring.data.dynamodb.repository.EnableScan;
 import org.springframework.data.repository.CrudRepository;

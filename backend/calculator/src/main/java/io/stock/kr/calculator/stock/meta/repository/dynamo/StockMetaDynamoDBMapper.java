@@ -1,7 +1,6 @@
-package io.stock.kr.calculator.stock.meta.dynamo;
+package io.stock.kr.calculator.stock.meta.repository.dynamo;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import io.stock.kr.calculator.dynamo.StockMetaDocument;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -19,5 +18,9 @@ public class StockMetaDynamoDBMapper {
 
     public void batchWriteStockMetaList(List<StockMetaDocument> stockMetaDocumentList){
         dynamoDBMapper.batchWrite(stockMetaDocumentList, new ArrayList<>());
+    }
+
+    public void batchDelete(List<StockMetaDocument> stockMetaDocumentList){
+        dynamoDBMapper.batchDelete(stockMetaDocumentList);
     }
 }

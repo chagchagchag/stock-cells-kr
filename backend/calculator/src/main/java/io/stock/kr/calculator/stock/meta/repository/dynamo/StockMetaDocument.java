@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.dynamo;
+package io.stock.kr.calculator.stock.meta.repository.dynamo;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
