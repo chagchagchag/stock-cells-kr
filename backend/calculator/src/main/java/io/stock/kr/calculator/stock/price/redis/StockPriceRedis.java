@@ -7,19 +7,16 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import java.math.BigDecimal;
-
 @Getter
 @ToString
 @RedisHash("stock")
 @AllArgsConstructor
 @Builder
 public class StockPriceRedis {
-    @Id
-    private String id;
     private String tradeDt;
 
-    private String srtnCd;
+    @Id
+    private String ticker;
     private String isinCd;
     private String itmsNm;
     private String mrktCtg;
