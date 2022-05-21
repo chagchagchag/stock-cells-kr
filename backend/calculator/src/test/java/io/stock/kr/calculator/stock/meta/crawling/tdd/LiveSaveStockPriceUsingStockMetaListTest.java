@@ -7,15 +7,15 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import io.stock.kr.calculator.dynamo.StockMetaDocument;
-import io.stock.kr.calculator.dynamo.StockMetaRepository;
+import io.stock.kr.calculator.stock.meta.crawling.tdd.dto.FSCStockPriceItem;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaDocument;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
-import io.stock.kr.calculator.stock.meta.crawling.tdd.dto.FSCStockPriceItem;
 import io.stock.kr.calculator.stock.meta.crawling.tdd.dto.FSCStockPriceResponse;
 import io.stock.kr.calculator.stock.price.StockPriceDto;
-import io.stock.kr.calculator.stock.price.redis.StockPriceRedis;
 import io.stock.kr.calculator.stock.price.redis.StockPriceRedisRepository;
+import io.stock.kr.calculator.util.PagingUtil;
 import lombok.Getter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,9 +30,16 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
+/**
+ * 기능 완료 후 test-docker 에서만 동작하도록 테스트케이스 변경 및 세부 테스트 게이스 분리 예정
+ */
 @SpringBootTest
 @ActiveProfiles("test-docker")
 public class LiveSaveStockPriceUsingStockMetaListTest {
@@ -57,6 +64,9 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     @Autowired
     StockPriceRedisRepository stockPriceRedisRepository;
 
+    ThreadPoolExecutor redisSaveExecutor = new ThreadPoolExecutor(1, 3, 2L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+    ThreadPoolExecutor apiExecutor = new ThreadPoolExecutor(1, 10, 2L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+
     @BeforeEach
     public void beforeTest(){
 //        deleteTableIfExist();
@@ -66,6 +76,15 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     @AfterEach
     public void afterTest(){
 //        deleteTableIfExist();
+        if(!((ExecutorService) redisSaveExecutor).isShutdown()){
+            redisSaveExecutor.shutdown();
+        }
+        if(!((ExecutorService)apiExecutor).isShutdown()){
+            apiExecutor.shutdown();
+        }
+
+        stockPriceRedisRepository.deleteAll();
+
     }
 
     public void deleteTableIfExist(){
@@ -143,7 +162,7 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
         //  = WebClient 의 경우는 통신시에 내부적으로(자동으로) URL Encoding 을 수행하기에 decoding 된 키를 사용하게끔 지정했다.
         //  (이걸로 하루 내내 원인을 못찾고 헤맴. 로그 자체도 단순히 SERVICE_KEY_NOT_REGISTERED 가 뜨기에 ServiceKey 가 잘못되었다고 판단해서 키를 다시 발급받는 등의 행동을 해야만 하게 된다.)
         // encoding 된 키 : 공식페이지에서 제공하는 SWAGGER 상에서 HTTP 통신을 할때에는 HTTP URL 형식에 맞게끔 base64 인코딩되어 있는 키
-        final String serviceKey = "KEY";
+        final String serviceKey = "---";
         final String BASE_URL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService";
 
         WebClient webClient = WebClient.builder()
@@ -155,45 +174,56 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
                 .defaultHeader("accept-language", "ko,en;q=0.9,en-US;q=0.8")
                 .build();
 
-        ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 10, 2L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+        List<Future<FSCStockPriceResponse>> futureList = new ArrayList<>();
 
-        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
-            stockList.stream()
-                    .map(stockMetaDto -> requestStockPrice(webClient, serviceKey, stockMetaDto.getTicker(), "20220101", "20220520"))
-                    .forEach(fcsResponse -> {
-                        fcsResponse.getResponse().getBody().getItems().getItem()
+        subListAccept(stockList, (l)->{
+            l.stream()
+                .forEach(stockMetaDto -> {
+                    CompletableFuture<FSCStockPriceResponse> future = CompletableFuture.supplyAsync(() -> {
+                        long start = System.nanoTime();
+                        FSCStockPriceResponse fscStockPriceResponse = requestStockPrice(webClient, serviceKey, stockMetaDto.getTicker(), "20220401", "20220430");
+                        long diff = System.nanoTime() - start;
+                        System.out.println("cost : " + (diff / 1000000) + " ms.");
+
+                        if (fscStockPriceResponse.getResponse().getBody().getItems().getItem().size() == 0) return null;
+
+                        List<StockPriceDto> list = fscStockPriceResponse.getResponse().getBody().getItems().getItem()
                                 .stream()
-                                .filter(item -> item.getSrtnCd() != null)
-//                                        .map(FSCStockPriceItem::toStockPriceDto)
-                                .peek(fcsResponseItem -> {
-                                    fcsStockTickerListTemplate.opsForList().rightPush("2022", fcsResponseItem.getSrtnCd());
-                                    System.out.println(fcsResponseItem.getSrtnCd());
-                                })
-                                .map(FSCStockPriceItem::toStockPriceRedis)
-                                .forEach(stockPriceRedis -> stockPriceRedisRepository.save(stockPriceRedis));
+                                .map(FSCStockPriceItem::toStockPriceDto)
+                                .toList();
+
+                        long redisStart = System.nanoTime();
+                        stockPriceRedisTemplate.opsForList().leftPushAll(stockMetaDto.getTicker(), list);
+                        fcsStockTickerListTemplate.opsForList().leftPush("2022", stockMetaDto.getTicker());
+                        long redisDiff = System.nanoTime() - redisStart;
+
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("redisCost : ").append((redisDiff / 1000000)).append(" ms. ( ").append(redisDiff).append(" ) nanoSecond.");
+//                        System.out.println("redisCost : " + (redisDiff / 1000000) + " ms. ( " + redisDiff + " ) nanoSecond.");
+                        System.out.println(builder.toString());
+
+                        return fscStockPriceResponse;
+                    }, apiExecutor);
+                    futureList.add(future);
+                });
+        }, 1700);
+
+        futureList.stream()
+                    .forEach(fscStockPriceResponseFuture -> {
+                        Optional.ofNullable(fscStockPriceResponseFuture)
+                                .ifPresent(future->{
+                                    try {
+                                        FSCStockPriceResponse fscStockPriceResponse = fscStockPriceResponseFuture.get();
+//                                        System.out.println("ticker = " + fcsStockTickerListTemplate.opsForList().size("2022"));
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    } catch (ExecutionException e) {
+                                        e.printStackTrace();
+                                    }
+                                });
                     });
-            return stockList.size();
-        }, executor);
-
-//        FSCStockPriceResponse dat = requestStockPrice(webClient, serviceKey, "009150", "20220101", "20220520");
-        /**
-         * 레디스
-         *  "FCS2022_COMPANY_LIST" : [ "FCS2022-000913", "FCS2022-222111", ...]
-         *  "FCS2022-000913" : List<StockPriceDto>
-         *  "FCS2022-222111" : List<StockPriceDto>
-         *      // ...
-         */
-
-//        dat.getResponse().getBody().getItems().getItem()
-//                .stream()
-//                .filter(item -> item.getSrtnCd() != null)
-//                .map(FSCStockPriceItem::toStockPriceDto)
-//                .forEach(stockPriceDto -> stockPriceRedisTemplate.opsForList().rightPush("FCS2022-"+stockPriceDto.getSrtnCd(), stockPriceDto));
 
         System.out.println(">>>>>>");
-        System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022"));
-        System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022"));
-
 //        System.out.println(dat.getResponse().getBody().getItems().getItem());
     }
 
@@ -205,9 +235,19 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
 
         fcsStockTickerListTemplate.opsForList().rightPush("2021", "AMZN-2021");
 
+        System.out.println("2022 -->");
         System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022")); // 가장 최근 순서로 pop
         System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022"));
+        System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022"));
+        System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2022"));
 
+        System.out.println("2021 --> ");
         System.out.println(fcsStockTickerListTemplate.opsForList().rightPop("2021")); // 가장 최근 순서로 pop
     }
+
+    public <T>  void subListAccept(List<T> stockList, Consumer<List<T>> consumer, int size){
+        PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(stockList, size);
+        PagingUtil.iterate(pageUnit, stockList, consumer);
+    }
+
 }
