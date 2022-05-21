@@ -1,14 +1,14 @@
 package io.stock.kr.calculator.util;
 
+import io.stock.kr.calculator.request.api.data_portal.DataPortalPage;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 public class PagingUtil {
 
@@ -16,8 +16,8 @@ public class PagingUtil {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PageUnit{
-        int limit;
-        int totalPageSize;
+        long limit;
+        long totalPageSize;
     }
 
     public static PageUnit pageUnit(List<?> list, int N){
@@ -29,24 +29,46 @@ public class PagingUtil {
         return new PageUnit(limit, totalPageSize);
     }
 
-    public static void iterate(List<?> list, PageUnit pageUnit){
+    public static PageUnit pageUnit(Long totalSize, int N){
+        int pageCnt = N;   // 리스트의 사이즈를 2개 또는 3개의 구간으로 나누기를 원한다.
+        long limit = totalSize / pageCnt;              // 한번에 읽어들일 페이지가 가진 데이터의 갯수
+        long totalPageSize = totalSize % limit == 0 ? totalSize/limit : totalSize/limit +1;
+
+        System.out.println("pageCnt = " + pageCnt + ", limit = " + limit + ", totalPageSize = " + totalPageSize);
+        return new PageUnit((int)limit, (int)totalPageSize);
+    }
+
+    public static void iterateList(List<?> list, PageUnit pageUnit){
         for(int o = 0; o<pageUnit.totalPageSize; o++){
             if(pageUnit.limit*(o+1) >= list.size()) {
-                System.out.println(list.subList(pageUnit.limit*o, list.size()));
+                System.out.println(list.subList((int)pageUnit.limit*o, list.size()));
                 break;
             }
-            System.out.println(list.subList(pageUnit.limit*o, pageUnit.limit*(o+1)));
+            System.out.println(list.subList((int)pageUnit.limit*o, (int)pageUnit.limit*(o+1)));
         }
     }
 
-    public static <T> void iterate(PageUnit pageUnit, List<T> list, Consumer<List<T>> consumer){
-        IntStream.range(0, pageUnit.totalPageSize)
+    public static <T> void iterateList(PageUnit pageUnit, List<T> list, Consumer<List<T>> consumer){
+        IntStream.range(0, (int)pageUnit.totalPageSize)
                 .forEach(o -> {
                     if(pageUnit.limit*(o+1) >= list.size()) {
-                        consumer.accept(list.subList(pageUnit.limit*o, list.size()));
+                        consumer.accept(list.subList((int)pageUnit.limit*o, list.size()));
                         return;
                     }
-                    consumer.accept(list.subList(pageUnit.limit*o, pageUnit.limit*(o+1)));
+                    consumer.accept(list.subList((int)pageUnit.limit*o, (int)pageUnit.limit*(o+1)));
                 });
     }
+
+    // 지감 당장 추상화를 더 하기에는 아직은 사소한 단계.
+    public static <T> void iterateApiConsumer(long limit, long totalPageCnt, long totalDataCnt, Consumer<DataPortalPage> consumer){
+        LongStream.range(1, totalPageCnt+1)
+                .forEach(offset -> {
+                    consumer.accept(new DataPortalPage(offset, offset+1));
+                });
+
+        if(limit * (totalPageCnt+1) > totalDataCnt){
+            consumer.accept(new DataPortalPage(totalPageCnt+1, totalDataCnt+2));
+        }
+    }
+
 }
