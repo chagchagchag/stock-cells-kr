@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.stock.price.redis;
+package io.stock.kr.calculator.stock.price.repository.redis;
 
 import org.springframework.data.repository.CrudRepository;
 

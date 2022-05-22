@@ -1,7 +1,7 @@
 package io.stock.kr.calculator.stock.meta.crawling.tdd.dto;
 
 import io.stock.kr.calculator.stock.price.StockPriceDto;
-import io.stock.kr.calculator.stock.price.redis.StockPriceRedis;
+import io.stock.kr.calculator.stock.price.repository.redis.StockPriceRedis;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

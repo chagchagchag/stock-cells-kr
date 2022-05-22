@@ -216,8 +216,6 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
 //                            System.out.println(r1.getResponse().getBody().getItems().getItem());
 //                            System.out.println(d.getStartIndex());
                         });
-//                        FSCStockPriceResponse fscStockPriceResponse1 = requestAllStockPrice(webClient, encodedKey, "20220401", "20220430", 1L, pageUnit.getLimit());
-//                        System.out.println(fscStockPriceResponse1.getResponse().getBody().getItems().getItem().size());
                     });
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
