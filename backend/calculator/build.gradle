@@ -25,7 +25,7 @@ dependencies {
 	implementation 'org.jsoup:jsoup:1.14.3'
 
 	// dynamodb
-	implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.213'
+	implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.224'
 	implementation 'io.github.boostchicken:spring-data-dynamodb:5.2.5'
 //	implementation 'com.amazonaws:DynamoDBLocal:1.12.0'
 
