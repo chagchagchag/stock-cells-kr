@@ -7,19 +7,19 @@ import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.DeleteTableRequest;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
-import io.stock.kr.calculator.stock.meta.crawling.tdd.dto.FSCStockPriceItem;
-import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaDocument;
-import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
-import io.stock.kr.calculator.stock.meta.crawling.dto.StockMetaDto;
 import io.stock.kr.calculator.stock.meta.crawling.tdd.dto.FSCStockPriceResponse;
-import io.stock.kr.calculator.stock.price.StockPriceDto;
+import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
+import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
+import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDynamoDBMapper;
+import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayRepository;
 import io.stock.kr.calculator.util.PagingUtil;
 import lombok.Getter;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -30,26 +30,25 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * 기능 완료 후 test-docker 에서만 동작하도록 테스트케이스 변경 및 세부 테스트 게이스 분리 예정
  */
 @SpringBootTest
+//@ActiveProfiles("test-docker")
 @ActiveProfiles("live")
 public class LiveSaveStockPriceUsingStockMetaListTest {
+
+    Logger logger = LoggerFactory.getLogger(LiveSaveStockPriceUsingStockMetaListTest.class);
+
     @Autowired
     StockMetaRepository repository;
 
@@ -62,8 +61,11 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     @Autowired
     DynamoDBMapper dynamoDBMapper;
 
-    ThreadPoolExecutor redisSaveExecutor = new ThreadPoolExecutor(1, 3, 2L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
-    ThreadPoolExecutor apiExecutor = new ThreadPoolExecutor(1, 10, 2L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
+    @Autowired
+    PriceDayDynamoDBMapper priceDayDynamoDBMapper;
+
+    @Autowired
+    PriceDayRepository priceDayRepository;
 
     final String NOT_ENCODED_SERVICE_KEY = "==";
     final String BASE_URL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService";
@@ -78,24 +80,18 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     @AfterEach
     public void afterTest(){
 //        deleteTableIfExist();
-        if(!((ExecutorService) redisSaveExecutor).isShutdown()){
-            redisSaveExecutor.shutdown();
-        }
-        if(!((ExecutorService)apiExecutor).isShutdown()){
-            apiExecutor.shutdown();
-        }
     }
 
     public void deleteTableIfExist(){
         DeleteTableRequest deleteTableRequest = dynamoDBMapper
-                .generateDeleteTableRequest(StockMetaDocument.class, DynamoDBMapperConfig.DEFAULT);
+                .generateDeleteTableRequest(PriceDayDocument.class, DynamoDBMapperConfig.DEFAULT);
 
         TableUtils.deleteTableIfExists(amazonDynamoDB, deleteTableRequest);
     }
 
     public void createTableRequest(){
         CreateTableRequest createTableRequest = dynamoDBMapper
-                .generateCreateTableRequest(StockMetaDocument.class, DynamoDBMapperConfig.DEFAULT)
+                .generateCreateTableRequest(PriceDayDocument.class, DynamoDBMapperConfig.DEFAULT)
                 .withProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
 
         TableUtils.createTableIfNotExists(amazonDynamoDB, createTableRequest);
@@ -142,46 +138,8 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
                 .block();
     }
 
-    // 폐기 검토
-    public FSCStockPriceResponse requestStockPrice(WebClient webClient, String serviceKey, String srtnCd, String beginBasDt, String endBasDt){
-        return webClient.get()
-                .uri(uriBuilder -> {
-                    URI uri = uriBuilder
-                            .path("/getStockPriceInfo")
-                            .queryParam(FSCParameters.NUM_OF_ROWS.getParameterName(), "365")
-                            .queryParam(FSCParameters.PAGE_NO.getParameterName(), "1")
-                            .queryParam(FSCParameters.RESULT_TYPE.getParameterName(), "json")
-                            .queryParam(FSCParameters.BEGIN_BAS_DT.getParameterName(), beginBasDt)
-                            .queryParam(FSCParameters.END_BAS_DT.getParameterName(), endBasDt)
-                            .queryParam(FSCParameters.LIKE_SRTN_CD.getParameterName(), srtnCd)
-                            .queryParam(FSCParameters.SERVICE_KEY.getParameterName(), serviceKey)
-                            .build();
-                    try {
-                        System.out.println(uri.toURL().toString());
-                    } catch (MalformedURLException e) {
-                        e.printStackTrace();
-                    }
-                    return uri;
-                })
-                .retrieve()
-                .bodyToMono(FSCStockPriceResponse.class)
-                .block();
-    }
-
     @Test
-    public void 종목리스트_조회_후_종가데이터를_DynamoDB에_INSERT한다(){
-        List<StockMetaDto> stockList = service.selectKrStockList("CORPCODE.xml");
-        System.out.println(stockList.size());
-
-        try {
-            Path path = Paths.get(ClassLoader.getSystemResource("data_portal").toURI());
-            if(Files.exists(Paths.get(path.toString(), "202205"))){
-
-            }
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
-
+    public void 금융결제원_종가데이터를_DynamoDB에_INSERT한다(){
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
 
@@ -206,94 +164,65 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
 
             FSCStockPriceResponse fscStockPriceResponse = requestAllStockPrice(webClient, encodedKey, "20220401", "20220430", 1L,100L);
 
+//            LocalDate startDate = LocalDate.of(2019,1,1);
+//            LocalDate endDate = LocalDate.of(2022,4,1);
+//            DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
+//
+//            for(; startDate.isBefore(endDate); startDate = startDate.plusMonths(1)){
+//
+//            }
+
             Optional.ofNullable(fscStockPriceResponse.getResponse().getBody().getTotalCount())
                     .ifPresent(totalCount -> {
                         PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalCount, 10);// 10 개의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
                         PagingUtil.iterateApiConsumer(pageUnit.getLimit(), 10, totalCount, d -> {
-                            FSCStockPriceResponse r1 = requestAllStockPrice(webClient, encodedKey, "20220401", "20220430", d.getStartIndex(), pageUnit.getLimit());
-                            // dynamoDB BatchWrite... 속도 잘 나오면 그냥 고고싱
-//                            System.out.println("size =>> " + r1.getResponse().getBody().getItems().getItem().size());
-//                            System.out.println(r1.getResponse().getBody().getItems().getItem());
-//                            System.out.println(d.getStartIndex());
+                            FSCStockPriceResponse r1 = requestAllStockPrice(webClient, encodedKey, "20220501", "20220524", d.getStartIndex(), pageUnit.getLimit());
+
+                            List<PriceDayDocument> priceDayDocumentList = r1.getResponse().getBody().getItems().getItem().stream()
+                                    .map(fscStockPriceItem -> fscStockPriceItem.toPriceDayDocument())
+//                                    .peek(priceDayDocument -> System.out.println(priceDayDocument.getTicker()))
+                                    .collect(Collectors.toList());
+
+                            logger.info("API RESPONSE SUCCESS. CURRENT PAGE = " + d.getStartIndex());
+
+                            Long insertStart = System.nanoTime();
+                            priceDayDynamoDBMapper.batchWritePriceDayList(priceDayDocumentList);
+
+                            sleep(2000);
+                            Long diff = System.nanoTime() - insertStart;
+
+                            StringBuilder builder = new StringBuilder();
+                            builder.append("INSERT COMPLETE. ").append(diff).append(" nano second (").append(diff / 1000000).append(" ms)");
+                            logger.info(builder.toString());
                         });
+
                     });
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
     }
 
-    // 폐기 검토
-    @Disabled
+    public void sleep(long milli){
+        try{
+            Thread.sleep(milli);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     @Test
-    public void 종목리스트_조회_후_종가데이터를_불러온다_WEBCLIENT(){
-        List<StockMetaDto> stockList = service.selectKrStockList("CORPCODE.xml");
-        System.out.println(stockList.size());
+    public void TEST_월_순회로직(){
+        LocalDate startDate = LocalDate.of(2019,1,1);
+        LocalDate endDate = LocalDate.of(2022,4,1);
+        DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl(BASE_URL)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36 Edg/101.0.1210.47")
-                .defaultHeader("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                .defaultHeader("accept-encoding", "gzip, deflate, br")
-                .defaultHeader("accept-language", "ko,en;q=0.9,en-US;q=0.8")
-                .build();
-
-        List<Future<FSCStockPriceResponse>> futureList = new ArrayList<>();
-
-        subListAccept(stockList, (l)->{
-            l.stream()
-                .forEach(stockMetaDto -> {
-                    CompletableFuture<FSCStockPriceResponse> future = CompletableFuture.supplyAsync(() -> {
-                        long start = System.nanoTime();
-                        FSCStockPriceResponse fscStockPriceResponse = requestStockPrice(webClient, NOT_ENCODED_SERVICE_KEY, stockMetaDto.getTicker(), "20220401", "20220430");
-                        long diff = System.nanoTime() - start;
-                        System.out.println("cost : " + (diff / 1000000) + " ms.");
-
-                        if (fscStockPriceResponse.getResponse().getBody().getItems().getItem().size() == 0) return null;
-
-                        List<StockPriceDto> list = fscStockPriceResponse.getResponse().getBody().getItems().getItem()
-                                .stream()
-                                .map(FSCStockPriceItem::toStockPriceDto)
-                                .toList();
-
-                        long redisStart = System.nanoTime();
-                        long redisDiff = System.nanoTime() - redisStart;
-
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("redisCost : ").append((redisDiff / 1000000)).append(" ms. ( ").append(redisDiff).append(" ) nanoSecond.");
-//                        System.out.println("redisCost : " + (redisDiff / 1000000) + " ms. ( " + redisDiff + " ) nanoSecond.");
-                        System.out.println(builder.toString());
-
-                        return fscStockPriceResponse;
-                    }, apiExecutor);
-                    futureList.add(future);
-                });
-        }, 1700);
-
-        futureList.stream()
-                    .forEach(fscStockPriceResponseFuture -> {
-                        Optional.ofNullable(fscStockPriceResponseFuture)
-                                .ifPresent(future->{
-                                    try {
-                                        FSCStockPriceResponse fscStockPriceResponse = fscStockPriceResponseFuture.get();
-//                                        System.out.println("ticker = " + fcsStockTickerListTemplate.opsForList().size("2022"));
-                                    } catch (InterruptedException e) {
-                                        e.printStackTrace();
-                                    } catch (ExecutionException e) {
-                                        e.printStackTrace();
-                                    }
-                                });
-                    });
-
-        System.out.println(">>>>>>");
-//        System.out.println(dat.getResponse().getBody().getItems().getItem());
+        for(; startDate.isBefore(endDate); startDate = startDate.plusMonths(1)){
+            System.out.println(">>>");
+            System.out.println(startDate);
+            LocalDate target = LocalDate.of(startDate.getYear(), startDate.getMonth(), startDate.plusMonths(1).minusDays(1).getDayOfMonth());
+            System.out.println(target);
+            System.out.println();
+        }
     }
-
-    // 폐기 검토
-    public <T>  void subListAccept(List<T> stockList, Consumer<List<T>> consumer, int size){
-        PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(stockList, size);
-        PagingUtil.iterateList(pageUnit, stockList, consumer);
-    }
-
 }
