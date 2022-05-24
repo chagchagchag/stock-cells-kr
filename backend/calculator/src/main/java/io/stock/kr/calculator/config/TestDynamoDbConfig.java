@@ -2,7 +2,7 @@ package io.stock.kr.calculator.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.client.builder.AwsClientBuilder.EndpointConfiguration;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
@@ -39,14 +39,15 @@ public class TestDynamoDbConfig {
                         )
                 );
 
-                AwsClientBuilder.EndpointConfiguration endpointConfiguration = new AwsClientBuilder.EndpointConfiguration(
-                        "http://localhost:5555",
+                EndpointConfiguration endpointConfiguration = new EndpointConfiguration(
+                        "http://localhost:8000",
                         Regions.AP_NORTHEAST_2.getName()
                 );
 
                 AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClientBuilder.standard()
                         .withCredentials(credentialsProvider)
                         .withEndpointConfiguration(endpointConfiguration)
+//                        .withRegion(Regions.AP_NORTHEAST_2)
                         .build();
 
                 return amazonDynamoDB;
