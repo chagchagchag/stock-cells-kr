@@ -6,6 +6,9 @@ spring:
   config:
     activate:
       on-profile: live
+  redis:
+    host: --
+    port: 6379
 amazon:
   dynamodb:
     endpoint: "https://dynamodb.ap-northeast-2.amazonaws.com:8000"
