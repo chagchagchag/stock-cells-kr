@@ -15,6 +15,8 @@ public class PriceDayDynamoDBMapper {
     }
 
     public void batchWritePriceDayList(List<PriceDayDocument> priceDayDocumentList){
+//        DynamoDBMapperConfig.SaveBehavior.PUT
+//        DynamoDBMapperConfig.builder().withSaveBehavior()
         dynamoDBMapper.batchWrite(priceDayDocumentList, new ArrayList<>());
     }
 
