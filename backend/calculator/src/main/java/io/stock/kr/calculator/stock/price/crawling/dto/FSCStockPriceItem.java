@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.stock.meta.crawling.tdd.dto;
+package io.stock.kr.calculator.stock.price.crawling.dto;
 
 import io.stock.kr.calculator.stock.price.StockPriceDto;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;

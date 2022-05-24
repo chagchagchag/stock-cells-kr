@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.stock.meta.crawling.tdd.dto;
+package io.stock.kr.calculator.stock.price.crawling.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

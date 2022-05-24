@@ -1,5 +1,6 @@
-package io.stock.kr.calculator.stock.meta.crawling.tdd.dto;
+package io.stock.kr.calculator.stock.price.crawling.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FSCStockPriceResponseWrapper {
-    FSCStockPriceResponseHeader header;
-    FSCStockPriceResponseBody body;
+public class FSCStockPriceResponse {
+    @JsonProperty(value = "response") FSCStockPriceResponseWrapper response;
 }
