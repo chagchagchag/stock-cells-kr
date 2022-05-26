@@ -1,12 +1,14 @@
 package io.stock.kr.calculator.common.date;
 
 import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+@Getter
 public class DateRange implements Iterable<LocalDate>{
     private final LocalDate startDt;
     private final LocalDate endDt;
