@@ -52,8 +52,9 @@ public class PriceCrawlingService {
                             .queryParam(FSCParameters.END_BAS_DT.getParameterName(), parameters.getEndDate())
                             .queryParam(FSCParameters.SERVICE_KEY.getParameterName(), parameters.getEncodedKey())
                             .build();
-                    System.out.println(uri.getHost() + ", " + uri.getPath() + ", " + uri.getRawPath());
-                    System.out.println(uri.toString());
+
+                    log.info(uri.getHost() + ", " + uri.getPath() + ", " + uri.getRawPath());
+                    log.info(uri.toString());
                     return uri;
                 })
                 .retrieve()
