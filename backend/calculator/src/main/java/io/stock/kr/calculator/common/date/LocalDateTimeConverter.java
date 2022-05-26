@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.common;
+package io.stock.kr.calculator.common.date;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTypeConverter;
 
