@@ -2,7 +2,7 @@ package io.stock.kr.calculator.util;
 
 import io.stock.kr.calculator.request.api.data_portal.DataPortalPage;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ import java.util.stream.LongStream;
 @Slf4j
 public class PagingUtil {
 
-    @Data
+    @Getter
     @AllArgsConstructor
     @NoArgsConstructor
     public static class PageUnit{
