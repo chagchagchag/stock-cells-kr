@@ -59,7 +59,7 @@ public class TestContainerConnectionTest {
 - docker login, docker desktop login
 - 아래의 도커 이미지를 pull 한다.
   - testcontainers/ryuk:0.3.3
-  - docker/compose:1.24.1
+  - docker/compose:1.29.2
 
 <br>
 
