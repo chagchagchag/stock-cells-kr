@@ -1,6 +1,7 @@
 package io.stock.kr.calculator.stock.price.crawling;
 
-import io.stock.kr.calculator.request.api.data_portal.DataPortalPage;
+import io.stock.kr.calculator.common.date.DateRange;
+import io.stock.kr.calculator.common.date.MonthRange;
 import io.stock.kr.calculator.request.fsc.FSCAPIType;
 import io.stock.kr.calculator.request.fsc.FSCParameters;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
@@ -25,8 +26,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @Slf4j
 @Service
@@ -36,6 +37,44 @@ public class PriceCrawlingService {
 
     public PriceCrawlingService(PriceDayDynamoDBMapper priceDayDynamoDBMapper){
         this.priceDayDynamoDBMapper = priceDayDynamoDBMapper;
+    }
+
+    public void insertAndSaveStockData(String serviceKey, LocalDate startDate, LocalDate endDate, int partitionSize, long offset, long limit){
+        final WebClient webClient = newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
+        final String encodedKey = encodeServiceKey(serviceKey);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        FSCRequestParameters requestParameters = ofRequestParameters(webClient, encodedKey, startDate.format(formatter), endDate.format(formatter));
+
+        Optional.ofNullable(requestAllStockPrice(requestParameters, offset, limit).getResponse().getBody().getTotalCount())
+                .ifPresent(totalCount -> {
+                    DateRange dateRange = new DateRange(startDate, endDate);
+                    MonthRange monthRange = new MonthRange(startDate, endDate);
+                    monthRange.stream()
+                            .forEach(dt -> {
+                                String startDayOfMonth = dt.format(formatter);
+                                String endDayOfMonth = dt.plusMonths(1).minusDays(1).format(formatter);
+                                FSCRequestParameters eachRequest = ofRequestParameters(webClient, encodedKey, startDayOfMonth, endDayOfMonth);
+                                // start ~ end 까지의 전체 상장종목을 페이징 기반으로 순회한다.
+                                // totalCount : start ~ end 까지의 전체 개별 데이터 건수
+                                // limit : 몇 개 단위로 묶어서 페이징을 할지 결정
+                                log.info("totalCount = " + totalCount + ", " + "partitionSize = " + partitionSize);
+                                pagedRequestAndWrite(totalCount, partitionSize, eachRequest);
+                            });
+                });
+    }
+
+    public void pagedRequestAndWrite(long totalPageCnt, int partitionSize, FSCRequestParameters requestParam){
+        // partitionSize 만큼의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
+        PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalPageCnt, partitionSize);
+
+        LongStream.range(1, totalPageCnt+1)
+                .forEach(offset -> {
+                    FSCStockPriceResponse r = requestAllStockPrice(requestParam, offset, pageUnit.getLimit());
+                    log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + offset);
+                    Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
+                    loggingCost(cost, "INSERT COMPLETE. ");
+                });
     }
 
     public FSCStockPriceResponse requestAllStockPrice(FSCRequestParameters parameters, long offset, long limit){
@@ -62,49 +101,6 @@ public class PriceCrawlingService {
                 .block();
     }
 
-    public void insertAndSaveStockData(String serviceKey, LocalDate startDate, LocalDate endDate, long offset, long limit){
-        final WebClient webClient = newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
-        String encodedKey = encodeServiceKey(serviceKey);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-
-        FSCRequestParameters requestParameters = FSCRequestParameters.builder()
-                .webClient(webClient).encodedKey(encodedKey)
-                .startDate(startDate.format(formatter)).endDate(startDate.plusMonths(1).minusDays(1).format(formatter))
-                .build();
-
-        FSCStockPriceResponse dataCountRequest = requestAllStockPrice(requestParameters, offset, limit);
-
-        for(; startDate.isBefore(endDate); startDate = startDate.plusMonths(1)){
-            String startDayOfMonth = startDate.format(formatter);
-            LocalDate target = LocalDate.of(startDate.getYear(), startDate.getMonth(), startDate.plusMonths(1).minusDays(1).getDayOfMonth());
-            String endDayOfMonth = target.format(formatter);
-
-            FSCRequestParameters fscRequestParameters = FSCRequestParameters.builder()
-                    .webClient(webClient)
-                    .startDate(startDayOfMonth).endDate(endDayOfMonth)
-                    .encodedKey(encodedKey)
-                    .build();
-
-            // 아래 부분을 더 테스트에 편리한 구조로 변경해야 하는데, 아직은 시간이 더 없어서, Mockito 및 Stub 을 이용한 테스트케이스 작성시에 리팩토링 예정
-            Optional.ofNullable(dataCountRequest.getResponse().getBody().getTotalCount())
-                    .ifPresent(totalCount-> iteratePagingApiAndBatchWrite(totalCount, fscRequestParameters, limit));
-        }
-    }
-
-    public void iteratePagingApiAndBatchWrite(Long totalCount, FSCRequestParameters fscRequestParameters, long limit){
-        Consumer<DataPortalPage> consumer = d -> requestApiAndBatchWrite(fscRequestParameters, d, limit);
-        PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalCount, 10);// 10 개의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
-        PagingUtil.iterateApiConsumer(pageUnit.getLimit(), 10, totalCount, consumer);
-    }
-
-    public void requestApiAndBatchWrite(FSCRequestParameters parameters, DataPortalPage d, long limit){
-        FSCStockPriceResponse r1 = requestAllStockPrice(parameters, d.getStartIndex(), limit);
-        log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + d.getStartIndex());
-        Long cost = batchWritePriceDayList(r1.getResponse().getBody().getItems().getItem());
-        loggingCost(cost, "INSERT COMPLETE. ");
-    }
-
     public Long batchWritePriceDayList(List<FSCStockPriceItem> stockPriceList){
         List<PriceDayDocument> priceDayDocumentList = stockPriceList.stream()
                 .map(fscStockPriceItem -> fscStockPriceItem.toPriceDayDocument())
@@ -127,6 +123,20 @@ public class PriceCrawlingService {
         return encodedKey;
     }
 
+    public void loggingCost(Long cost, String message){
+        StringBuilder builder = new StringBuilder();
+        builder.append(message).append(cost).append(" nano second (").append(cost / 1000000).append(" ms)");
+        log.info(builder.toString());
+    }
+
+    public FSCRequestParameters ofRequestParameters(WebClient webClient, String encodedKey, String startDate, String endDate){
+        return FSCRequestParameters.builder()
+                .webClient(webClient).encodedKey(encodedKey)
+                .startDate(startDate)
+                .endDate(endDate)
+                .build();
+    }
+
     public WebClient newWebClient(String BASE_URL){
         DefaultUriBuilderFactory factory = new DefaultUriBuilderFactory();
         factory.setEncodingMode(DefaultUriBuilderFactory.EncodingMode.NONE);
@@ -147,20 +157,5 @@ public class PriceCrawlingService {
                 .build();
 
         return webClient;
-    }
-
-    public Consumer<DataPortalPage> newApiRequestAndInsertConsumer(FSCRequestParameters parameters, Long limit){
-        return d -> {
-            FSCStockPriceResponse r1 = requestAllStockPrice(parameters, d.getStartIndex(), limit);
-            log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + d.getStartIndex());
-            Long cost = batchWritePriceDayList(r1.getResponse().getBody().getItems().getItem());
-            loggingCost(cost, "INSERT COMPLETE. ");
-        };
-    }
-
-    public void loggingCost(Long cost, String message){
-        StringBuilder builder = new StringBuilder();
-        builder.append(message).append(cost).append(" nano second (").append(cost / 1000000).append(" ms)");
-        log.info(builder.toString());
     }
 }
