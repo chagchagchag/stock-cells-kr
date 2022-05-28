@@ -1,7 +1,7 @@
 package io.stock.kr.calculator.stock.price.repository.dynamo;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
-import io.stock.kr.calculator.common.LocalDateTimeConverter;
+import io.stock.kr.calculator.common.date.LocalDateTimeConverter;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
