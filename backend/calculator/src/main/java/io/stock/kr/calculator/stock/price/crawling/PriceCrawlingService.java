@@ -2,6 +2,7 @@ package io.stock.kr.calculator.stock.price.crawling;
 
 import io.stock.kr.calculator.common.date.DateRange;
 import io.stock.kr.calculator.common.date.MonthRange;
+import io.stock.kr.calculator.request.api.data_portal.DataPortalPage;
 import io.stock.kr.calculator.request.fsc.FSCAPIType;
 import io.stock.kr.calculator.request.fsc.FSCParameters;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
@@ -29,6 +30,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 
+/**
+ * TODO
+ *  WebClient 객체 생성, API 요청 기능 을 별도 객체로 분리
+ *  목표는 페이징과 API 요청기능을 분리하는 것.
+ *  JPA 페이징 기능을 참고해서 적용해보기.
+ *
+ * 1) Web API 요청 컴포넌트 별도 분리해서, 의존성 주입 후 Mock 객체 기반 테스트 가능하도록 분리
+ *      = 가급적 공통화 고려하기보다는 구체클래스 기반으로. 아직 어떤 기능이 공통화될지 알수 없기 때문.
+ *      = RequestParameter 객체 생성에 필수적으로 필요한 것은 뭐지? 하는 고민을 객체에 적용해두기
+ * 2) 페이징 테스트 기능 구현
+ * 3)
+ */
 @Slf4j
 @Service
 public class PriceCrawlingService {
@@ -39,18 +52,17 @@ public class PriceCrawlingService {
         this.priceDayDynamoDBMapper = priceDayDynamoDBMapper;
     }
 
-    public void insertAndSaveStockData(String serviceKey, LocalDate startDate, LocalDate endDate, int partitionSize, long offset, long limit){
+    public void insertAndSaveStockData(String serviceKey, LocalDate startDate, LocalDate endDate, int partitionSize){
         final WebClient webClient = newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
         final String encodedKey = encodeServiceKey(serviceKey);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         FSCRequestParameters requestParameters = ofRequestParameters(webClient, encodedKey, startDate.format(formatter), endDate.format(formatter));
 
-        Optional.ofNullable(requestAllStockPrice(requestParameters, offset, limit).getResponse().getBody().getTotalCount())
+        Optional.ofNullable(requestAllStockPrice(requestParameters, 0, 10).getResponse().getBody().getTotalCount())
                 .ifPresent(totalCount -> {
-                    DateRange dateRange = new DateRange(startDate, endDate);
-                    MonthRange monthRange = new MonthRange(startDate, endDate);
-                    monthRange.stream()
+                    new MonthRange(startDate, endDate)
+                            .stream()
                             .forEach(dt -> {
                                 String startDayOfMonth = dt.format(formatter);
                                 String endDayOfMonth = dt.plusMonths(1).minusDays(1).format(formatter);
@@ -64,17 +76,27 @@ public class PriceCrawlingService {
                 });
     }
 
+    /**
+     * @param totalPageCnt      페이지의 갯수
+     * @param partitionSize     파티션 사이즈
+     * @param requestParam      Request Parameter
+     */
     public void pagedRequestAndWrite(long totalPageCnt, int partitionSize, FSCRequestParameters requestParam){
         // partitionSize 만큼의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
         PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalPageCnt, partitionSize);
 
-        LongStream.range(1, totalPageCnt+1)
+        LongStream.range(1, partitionSize+1)
                 .forEach(offset -> {
                     FSCStockPriceResponse r = requestAllStockPrice(requestParam, offset, pageUnit.getLimit());
                     log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + offset);
                     Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
                     loggingCost(cost, "INSERT COMPLETE. ");
                 });
+
+        if(pageUnit.getLimit() * (partitionSize+1) > totalPageCnt){
+            FSCStockPriceResponse r = requestAllStockPrice(requestParam, partitionSize+1, pageUnit.getLimit());
+            Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
+        }
     }
 
     public FSCStockPriceResponse requestAllStockPrice(FSCRequestParameters parameters, long offset, long limit){

@@ -19,7 +19,6 @@ import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayRepository;
 import io.stock.kr.calculator.util.PagingUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -194,21 +193,11 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     }
 
     @Test
-    @DisplayName("insertAndStockData 테스트 ")
-    public void 리팩토링_API요청후_저장기능_분리(){
-        PriceCrawlingService priceCrawlingService = new PriceCrawlingService(priceDayDynamoDBMapper);
-
-        WebClient webClient = priceCrawlingService.newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
-        String encodedKey = priceCrawlingService.encodeServiceKey(NOT_ENCODED_SERVICE_KEY);
-
-        FSCRequestParameters parameters = FSCRequestParameters.builder()
-                .webClient(webClient).encodedKey(encodedKey)
-                .startDate("20220401").endDate("20220430")
-                .build();
-
-        FSCStockPriceResponse fscStockPriceResponse = priceCrawlingService.requestAllStockPrice(parameters, 1L, 100L);
-
-        // ...
+    public void TEST_insertAndStockData(){
+        PriceCrawlingService service = new PriceCrawlingService(priceDayDynamoDBMapper);
+        LocalDate startDate = LocalDate.of(2022, 1, 1);
+        LocalDate endDate = LocalDate.of(2022, 4, 30);
+        service.insertAndSaveStockData(NOT_ENCODED_SERVICE_KEY, startDate, endDate, 10);
     }
 
     public void sleep(long milli){
