@@ -40,8 +40,8 @@ public class FSCAPIRequestProcessor {
                             .queryParam(FSCParameters.NUM_OF_ROWS.getParameterName(), String.valueOf(limit))
                             .queryParam(FSCParameters.PAGE_NO.getParameterName(), String.valueOf(offset))
                             .queryParam(FSCParameters.RESULT_TYPE.getParameterName(), "json")
-                            .queryParam(FSCParameters.BEGIN_BAS_DT.getParameterName(), startDate)
-                            .queryParam(FSCParameters.END_BAS_DT.getParameterName(), endDate)
+                            .queryParam(FSCParameters.BEGIN_BAS_DT.getParameterName(), formatLocalDate(startDate, formatter))
+                            .queryParam(FSCParameters.END_BAS_DT.getParameterName(), formatLocalDate(endDate, formatter))
                             .queryParam(FSCParameters.SERVICE_KEY.getParameterName(), fscapiType.getEncodedServiceKey())
                             .build();
 
