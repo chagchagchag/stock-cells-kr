@@ -5,7 +5,7 @@ import io.stock.kr.calculator.request.fsc.FSCAPIType;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceItem;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceResponse;
-import io.stock.kr.calculator.stock.price.crawling.response.FscResultType;
+import io.stock.kr.calculator.stock.price.response.FscResultType;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDynamoDBMapper;
 import io.stock.kr.calculator.util.PagingUtil;

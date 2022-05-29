@@ -1,4 +1,4 @@
-package io.stock.kr.calculator.stock.price.crawling.response;
+package io.stock.kr.calculator.stock.price.response;
 
 public enum FscResultType {
     RESULT_EXIST(Boolean.TRUE, "ITEM_EXIST"),
