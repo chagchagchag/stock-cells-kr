@@ -8,6 +8,7 @@ import io.stock.kr.calculator.request.fsc.FSCParameters;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceItem;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceResponse;
+import io.stock.kr.calculator.stock.price.crawling.response.FscResultType;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDynamoDBMapper;
 import io.stock.kr.calculator.util.PagingUtil;
@@ -52,75 +53,60 @@ public class PriceCrawlingService {
         this.priceDayDynamoDBMapper = priceDayDynamoDBMapper;
     }
 
-    public void insertAndSaveStockData(String serviceKey, LocalDate startDate, LocalDate endDate, int partitionSize){
-        final WebClient webClient = newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
-        final String encodedKey = encodeServiceKey(serviceKey);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-        FSCRequestParameters requestParameters = ofRequestParameters(webClient, encodedKey, startDate.format(formatter), endDate.format(formatter));
-
-        Optional.ofNullable(requestAllStockPrice(requestParameters, 0, 10).getResponse().getBody().getTotalCount())
-                .ifPresent(totalCount -> {
-                    new MonthRange(startDate, endDate)
+    /**
+     * @param startDate         시작 날짜
+     * @param endDate           끝 날짜 
+     * @param partitionSize     파티션 사이즈
+     * @return FscResultType
+     */
+    public FscResultType insertAndSaveStockData(LocalDate startDate, LocalDate endDate, int partitionSize){
+        return Optional.ofNullable(
+                new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API)
+                    .requestStockPrice(startDate, endDate, 1, 10)
+                    .getResponse()
+                    .getBody()
+                    .getTotalCount())
+                .map(totalCount -> {
+                    new MonthRange(startDate, endDate)  // start ~ end 까지의 전체 상장종목을 페이징 기반으로 순회한다.
                             .stream()
                             .forEach(dt -> {
-                                String startDayOfMonth = dt.format(formatter);
-                                String endDayOfMonth = dt.plusMonths(1).minusDays(1).format(formatter);
-                                FSCRequestParameters eachRequest = ofRequestParameters(webClient, encodedKey, startDayOfMonth, endDayOfMonth);
-                                // start ~ end 까지의 전체 상장종목을 페이징 기반으로 순회한다.
                                 // totalCount : start ~ end 까지의 전체 개별 데이터 건수
                                 // limit : 몇 개 단위로 묶어서 페이징을 할지 결정
                                 log.info("totalCount = " + totalCount + ", " + "partitionSize = " + partitionSize);
-                                pagedRequestAndWrite(totalCount, partitionSize, eachRequest);
+                                pagedRequestAndWrite(dt, endDayOfMonth(dt), totalCount, partitionSize);
                             });
-                });
+                    return FscResultType.RESULT_EXIST;
+                })
+                .orElse(FscResultType.EMPTY);
     }
 
     /**
+     * @param startDate         startDate
+     * @param endDate           endDate
      * @param totalPageCnt      페이지의 갯수
      * @param partitionSize     파티션 사이즈
-     * @param requestParam      Request Parameter
      */
-    public void pagedRequestAndWrite(long totalPageCnt, int partitionSize, FSCRequestParameters requestParam){
+    public void pagedRequestAndWrite(LocalDate startDate, LocalDate endDate, long totalPageCnt, int partitionSize){
         // partitionSize 만큼의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
         PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalPageCnt, partitionSize);
+        final long limit = pageUnit.getLimit();
 
         LongStream.range(1, partitionSize+1)
                 .forEach(offset -> {
-                    FSCStockPriceResponse r = requestAllStockPrice(requestParam, offset, pageUnit.getLimit());
+                    PriceCrawlingRequestService service = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+                    FSCStockPriceResponse r = service.requestStockPrice(startDate, endDate, offset, limit);
                     log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + offset);
+
                     Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
                     loggingCost(cost, "INSERT COMPLETE. ");
                 });
 
-        if(pageUnit.getLimit() * (partitionSize+1) > totalPageCnt){
-            FSCStockPriceResponse r = requestAllStockPrice(requestParam, partitionSize+1, pageUnit.getLimit());
+        if(limit * (partitionSize+1) > totalPageCnt){
+            PriceCrawlingRequestService service = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+            FSCStockPriceResponse r = service.requestStockPrice(startDate, endDate, partitionSize + 1, limit);
             Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
+            loggingCost(cost, "(LAST PAGE) INSERT COMPLETE. ");
         }
-    }
-
-    public FSCStockPriceResponse requestAllStockPrice(FSCRequestParameters parameters, long offset, long limit){
-        return parameters.getWebClient().get()
-                .uri(uriBuilder -> {
-                    URI uri = uriBuilder
-                            .scheme("http")
-                            .host("apis.data.go.kr")
-                            .path(FSCAPIType.STOCK_PRICE_API.webClientEndpoint())
-                            .queryParam(FSCParameters.NUM_OF_ROWS.getParameterName(), String.valueOf(limit))
-                            .queryParam(FSCParameters.PAGE_NO.getParameterName(), String.valueOf(offset))
-                            .queryParam(FSCParameters.RESULT_TYPE.getParameterName(), "json")
-                            .queryParam(FSCParameters.BEGIN_BAS_DT.getParameterName(), parameters.getStartDate())
-                            .queryParam(FSCParameters.END_BAS_DT.getParameterName(), parameters.getEndDate())
-                            .queryParam(FSCParameters.SERVICE_KEY.getParameterName(), parameters.getEncodedKey())
-                            .build();
-
-                    log.info(uri.getHost() + ", " + uri.getPath() + ", " + uri.getRawPath());
-                    log.info(uri.toString());
-                    return uri;
-                })
-                .retrieve()
-                .bodyToMono(FSCStockPriceResponse.class)
-                .block();
     }
 
     public Long batchWritePriceDayList(List<FSCStockPriceItem> stockPriceList){
@@ -129,20 +115,9 @@ public class PriceCrawlingService {
 //                                    .peek(priceDayDocument -> System.out.println(priceDayDocument.getTicker()))
                 .collect(Collectors.toList());
 
-        Long insertStart = System.nanoTime();
+        long insertStart = System.nanoTime();
         priceDayDynamoDBMapper.batchWritePriceDayList(priceDayDocumentList);
-        Long diff = System.nanoTime() - insertStart;
-        return diff;
-    }
-
-    public String encodeServiceKey(String serivceKey){
-        String encodedKey = null;
-        try {
-            encodedKey = URLEncoder.encode(serivceKey, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return encodedKey;
+        return System.nanoTime() - insertStart;
     }
 
     public void loggingCost(Long cost, String message){
@@ -179,5 +154,9 @@ public class PriceCrawlingService {
                 .build();
 
         return webClient;
+    }
+
+    public LocalDate endDayOfMonth(LocalDate dt){
+        return dt.plusMonths(1).minusDays(1);
     }
 }

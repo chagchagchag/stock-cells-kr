@@ -11,6 +11,7 @@ import io.stock.kr.calculator.request.fsc.FSCAPIType;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
+import io.stock.kr.calculator.stock.price.crawling.PriceCrawlingRequestService;
 import io.stock.kr.calculator.stock.price.crawling.PriceCrawlingService;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceResponse;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
@@ -70,7 +71,7 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     @Autowired
     PriceDayRepository priceDayRepository;
 
-    final String NOT_ENCODED_SERVICE_KEY = "";
+    final String NOT_ENCODED_SERVICE_KEY = "---";
     final String BASE_URL = "http://apis.data.go.kr/1160100/service/GetStockSecuritiesInfoService";
     final String BASE_PATH = "/1160100/service/GetStockSecuritiesInfoService";
 
@@ -131,7 +132,10 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
                     .startDate("20190101").endDate("20220401")
                     .build();
 
-            FSCStockPriceResponse fscStockPriceResponse = service.requestAllStockPrice(parameters, 1L,100L);
+            LocalDate from = LocalDate.of(2019, 1, 1);
+            LocalDate to = LocalDate.of(2022, 4, 1);
+            PriceCrawlingRequestService service1 = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+            FSCStockPriceResponse fscStockPriceResponse = service1.requestStockPrice(from, to, 1L,100L);
 
             LocalDate startDate = LocalDate.of(2018,1,1);
             LocalDate endDate = LocalDate.of(2019,1,1);
@@ -147,7 +151,8 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
                         .ifPresent(totalCount -> {
                             PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalCount, 10);// 10 개의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
                             PagingUtil.iterateApiConsumer(pageUnit.getLimit(), 10, totalCount, d -> {
-                                FSCStockPriceResponse r1 = service.requestAllStockPrice(parameters, d.getStartIndex(), pageUnit.getLimit());
+                                PriceCrawlingRequestService eachRequest = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+                                FSCStockPriceResponse r1 = eachRequest.requestStockPrice(from, to, d.getStartIndex(), pageUnit.getLimit());
 
                                 List<PriceDayDocument> priceDayDocumentList = r1.getResponse().getBody().getItems().getItem().stream()
                                         .map(fscStockPriceItem -> fscStockPriceItem.toPriceDayDocument())
@@ -175,29 +180,11 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
     }
 
     @Test
-    public void 리팩토링_API요청기능_서비스단_분리(){
-        PriceCrawlingService priceCrawlingService = new PriceCrawlingService(priceDayDynamoDBMapper);
-
-        WebClient webClient = priceCrawlingService.newWebClient(FSCAPIType.STOCK_PRICE_API.getBaseUrl());
-        String encodedKey = priceCrawlingService.encodeServiceKey(NOT_ENCODED_SERVICE_KEY);
-
-        FSCRequestParameters parameters = FSCRequestParameters.builder()
-                .webClient(webClient).encodedKey(encodedKey)
-                .startDate("20220401").endDate("20220430")
-                .build();
-
-        FSCStockPriceResponse fscStockPriceResponse = priceCrawlingService.requestAllStockPrice(parameters, 1L, 100L);
-
-        assertThat(Optional.ofNullable(fscStockPriceResponse.getResponse().getBody().getItems().getItem()))
-                .isNotEmpty();
-    }
-
-    @Test
     public void TEST_insertAndStockData(){
         PriceCrawlingService service = new PriceCrawlingService(priceDayDynamoDBMapper);
         LocalDate startDate = LocalDate.of(2022, 1, 1);
         LocalDate endDate = LocalDate.of(2022, 4, 30);
-        service.insertAndSaveStockData(NOT_ENCODED_SERVICE_KEY, startDate, endDate, 10);
+        service.insertAndSaveStockData(startDate, endDate, 10);
     }
 
     public void sleep(long milli){
