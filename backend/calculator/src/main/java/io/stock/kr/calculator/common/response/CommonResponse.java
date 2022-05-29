@@ -1,11 +1,10 @@
 package io.stock.kr.calculator.common.response;
 
 import lombok.Data;
-import lombok.Getter;
 import lombok.ToString;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.lang.Nullable;
-import reactor.core.publisher.Flux;
 
 import java.util.Optional;
 
@@ -15,6 +14,7 @@ public class CommonResponse<T>{
     private HttpHeaders httpHeaders;
     private HttpStatus status;
     private T body;
+    private String description;
 
     public CommonResponse(){}
 
@@ -22,6 +22,7 @@ public class CommonResponse<T>{
         this.status = builder.status;
         this.body = builder.body;
         this.httpHeaders = builder.httpHeaders;
+        this.description = builder.description;
     }
 
     public static <T> CommonResponse<T> of(T body){
@@ -80,6 +81,7 @@ public class CommonResponse<T>{
         private final HttpHeaders httpHeaders = new HttpHeaders();
         private HttpStatus status;
         private T body;
+        private String description;
 
         public InternalBuilder(){}
 
@@ -98,6 +100,11 @@ public class CommonResponse<T>{
 
         public InternalBuilder<T> body(@Nullable T body){
             this.body = body;
+            return this;
+        }
+
+        public InternalBuilder<T> description(@Nullable String description){
+            this.description = description;
             return this;
         }
 
