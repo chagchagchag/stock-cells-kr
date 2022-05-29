@@ -1,6 +1,5 @@
 package io.stock.kr.calculator.stock.price.crawling.dto;
 
-import io.stock.kr.calculator.stock.price.StockPriceDto;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocumentId;
 import io.stock.kr.calculator.stock.price.repository.redis.StockPriceRedis;
@@ -58,21 +57,6 @@ public class FSCStockPriceItem {
                 .high(this.getHipr())
                 .low(this.getLopr())
                 .close(this.getClpr())
-                .build();
-    }
-
-    public StockPriceDto toStockPriceDto(){
-        return StockPriceDto.builder()
-                .basDt(this.getBasDt())
-                .srtnCd(this.getSrtnCd())
-                .isinCd(this.getIsinCd())
-                .itmsNm(this.getItmsNm())
-                .mrktCtg(this.getMrktCtg())
-                .vs(this.getVs())
-                .mkp(new BigDecimal(this.getMkp()))
-                .hipr(new BigDecimal(this.getHipr()))
-                .lopr(new BigDecimal(this.getLopr()))
-                .clpr(new BigDecimal(this.getClpr()))
                 .build();
     }
 }
