@@ -1,10 +1,7 @@
 package io.stock.kr.calculator.stock.price.crawling;
 
-import io.stock.kr.calculator.common.date.DateRange;
 import io.stock.kr.calculator.common.date.MonthRange;
-import io.stock.kr.calculator.request.api.data_portal.DataPortalPage;
 import io.stock.kr.calculator.request.fsc.FSCAPIType;
-import io.stock.kr.calculator.request.fsc.FSCParameters;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceItem;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceResponse;
@@ -20,12 +17,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -61,7 +53,7 @@ public class PriceCrawlingService {
      */
     public FscResultType insertAndSaveStockData(LocalDate startDate, LocalDate endDate, int partitionSize){
         return Optional.ofNullable(
-                new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API)
+                new FSCAPIRequestProcessor(FSCAPIType.STOCK_PRICE_API)
                     .requestStockPrice(startDate, endDate, 1, 10)
                     .getResponse()
                     .getBody()
@@ -93,7 +85,7 @@ public class PriceCrawlingService {
 
         LongStream.range(1, partitionSize+1)
                 .forEach(offset -> {
-                    PriceCrawlingRequestService service = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+                    FSCAPIRequestProcessor service = new FSCAPIRequestProcessor(FSCAPIType.STOCK_PRICE_API);
                     FSCStockPriceResponse r = service.requestStockPrice(startDate, endDate, offset, limit);
                     log.info("API RESPONSE SUCCESS. CURRENT PAGE = " + offset);
 
@@ -102,7 +94,7 @@ public class PriceCrawlingService {
                 });
 
         if(limit * (partitionSize+1) > totalPageCnt){
-            PriceCrawlingRequestService service = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+            FSCAPIRequestProcessor service = new FSCAPIRequestProcessor(FSCAPIType.STOCK_PRICE_API);
             FSCStockPriceResponse r = service.requestStockPrice(startDate, endDate, partitionSize + 1, limit);
             Long cost = batchWritePriceDayList(r.getResponse().getBody().getItems().getItem());
             loggingCost(cost, "(LAST PAGE) INSERT COMPLETE. ");

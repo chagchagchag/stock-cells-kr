@@ -15,13 +15,16 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * 금융결제원 API 요청 객체
+ */
 @Slf4j
-public class PriceCrawlingRequestService {
+public class FSCAPIRequestProcessor {
     private final FSCAPIType fscapiType;
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     @Builder
-    public PriceCrawlingRequestService(
+    public FSCAPIRequestProcessor(
             FSCAPIType fscapiType
     ){
         this.fscapiType = fscapiType;

@@ -11,7 +11,7 @@ import io.stock.kr.calculator.request.fsc.FSCAPIType;
 import io.stock.kr.calculator.request.fsc.FSCRequestParameters;
 import io.stock.kr.calculator.stock.meta.crawling.StockMetaCrawlingDartService;
 import io.stock.kr.calculator.stock.meta.repository.dynamo.StockMetaRepository;
-import io.stock.kr.calculator.stock.price.crawling.PriceCrawlingRequestService;
+import io.stock.kr.calculator.stock.price.crawling.FSCAPIRequestProcessor;
 import io.stock.kr.calculator.stock.price.crawling.PriceCrawlingService;
 import io.stock.kr.calculator.stock.price.crawling.dto.FSCStockPriceResponse;
 import io.stock.kr.calculator.stock.price.repository.dynamo.PriceDayDocument;
@@ -134,7 +134,7 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
 
             LocalDate from = LocalDate.of(2019, 1, 1);
             LocalDate to = LocalDate.of(2022, 4, 1);
-            PriceCrawlingRequestService service1 = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+            FSCAPIRequestProcessor service1 = new FSCAPIRequestProcessor(FSCAPIType.STOCK_PRICE_API);
             FSCStockPriceResponse fscStockPriceResponse = service1.requestStockPrice(from, to, 1L,100L);
 
             LocalDate startDate = LocalDate.of(2018,1,1);
@@ -151,7 +151,7 @@ public class LiveSaveStockPriceUsingStockMetaListTest {
                         .ifPresent(totalCount -> {
                             PagingUtil.PageUnit pageUnit = PagingUtil.pageUnit(totalCount, 10);// 10 개의 구간으로 나눠서 진행하겠다. (한달평균 5만5천개일 경우 5500개씩 API 다운로드)
                             PagingUtil.iterateApiConsumer(pageUnit.getLimit(), 10, totalCount, d -> {
-                                PriceCrawlingRequestService eachRequest = new PriceCrawlingRequestService(FSCAPIType.STOCK_PRICE_API);
+                                FSCAPIRequestProcessor eachRequest = new FSCAPIRequestProcessor(FSCAPIType.STOCK_PRICE_API);
                                 FSCStockPriceResponse r1 = eachRequest.requestStockPrice(from, to, d.getStartIndex(), pageUnit.getLimit());
 
                                 List<PriceDayDocument> priceDayDocumentList = r1.getResponse().getBody().getItems().getItem().stream()
