@@ -1,5 +1,6 @@
 package io.stock.kr.calculator.common.response;
 
+import io.stock.kr.calculator.common.exception.type.BaseExceptionType;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.http.HttpHeaders;
@@ -12,14 +13,14 @@ import java.util.Optional;
 @ToString
 public class CommonResponse<T>{
     private HttpHeaders httpHeaders;
-    private HttpStatus status;
+    private int resultCode;
     private T body;
     private String description;
 
     public CommonResponse(){}
 
     private CommonResponse(InternalBuilder<T> builder){
-        this.status = builder.status;
+        this.resultCode = builder.resultCode;
         this.body = builder.body;
         this.httpHeaders = builder.httpHeaders;
         this.description = builder.description;
@@ -33,60 +34,62 @@ public class CommonResponse<T>{
 
     public static <T> CommonResponse<T> of(T body, ResponseType responseType){
         return new InternalBuilder<T>()
-                .status(responseType.getHttpStatusCode())
+                .resultCode(responseType.getResultCode())
                 .body(body)
                 .build();
     }
 
     public static <T> InternalBuilder<T> ok(){
         return new InternalBuilder<T>()
-                .status(HttpStatus.OK);
+                .resultCode(ResponseType.OK.getResultCode());
     }
 
     public static <T> CommonResponse<T> ok(@Nullable T body){
         return new InternalBuilder<T>()
-                .status(HttpStatus.OK)
+                .resultCode(ResponseType.OK.getResultCode())
                 .body(body)
                 .build();
     }
 
-    public static <T> CommonResponse<T> ok(@Nullable T body, ResponseType responseType){
+    public static <T> CommonResponse<T> ok(ResponseType responseType, @Nullable T body){
         return new InternalBuilder<T>()
-                .status(responseType.getHttpStatusCode())
+                .resultCode(responseType.getResultCode())
                 .body(body)
                 .build();
     }
 
-    public static <T> CommonResponse<T> notOk(ResponseType responseType, T data){
+    public static <T> CommonResponse<T> notOk(BaseExceptionType exceptionType, T body){
         return new InternalBuilder<T>()
-                .status(responseType.getHttpStatusCode())
-                .body(data)
+                .resultCode(exceptionType.getResultCode())
+                .description(exceptionType.getDescription())
+                .body(body)
                 .build();
     }
 
-    public static CommonResponse<String> notOk(ResponseType responseType){
+    public static CommonResponse<String> notOk(BaseExceptionType exceptionType){
         return new InternalBuilder<String>()
-                .status(responseType.getHttpStatusCode())
-                .body(responseType.getDescription())
+                .resultCode(exceptionType.getResultCode())
+                .description(exceptionType.getDescription())
+                .body(exceptionType.getDescription())
                 .build();
     }
 
     public static CommonResponse<?> notOk(){
         return new InternalBuilder<>()
-                .status(HttpStatus.BAD_REQUEST)
+                .resultCode(HttpStatus.BAD_REQUEST.value())
                 .build();
     }
 
     public static class InternalBuilder <T>{
         private final HttpHeaders httpHeaders = new HttpHeaders();
-        private HttpStatus status;
+        private int resultCode;
         private T body;
         private String description;
 
         public InternalBuilder(){}
 
-        public InternalBuilder<T> status(@Nullable HttpStatus httpStatus){
-            this.status = httpStatus;
+        public InternalBuilder<T> resultCode(int resultCode){
+            this.resultCode = resultCode;
             return this;
         }
 

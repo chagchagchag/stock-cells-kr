@@ -1,13 +1,12 @@
-package io.stock.kr.calculator.stock.price;
+package io.stock.kr.calculator.stock.price.api;
 
-import io.stock.kr.calculator.common.response.CommonResponse;
-import io.stock.kr.calculator.common.response.ResponseType;
-import io.stock.kr.calculator.stock.price.response.StockPriceItem;
+import io.stock.kr.calculator.common.exception.type.DateExceptionType;
+import io.stock.kr.calculator.common.exception.DateTimeFormatIllegalException;
+import io.stock.kr.calculator.common.response.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -25,10 +24,10 @@ public class FakeResponseController {
     public FakeResponseController(){}
 
     @GetMapping(value = "/fake/price/{from}/{to}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Mono<CommonResponse<Flux<StockPriceItem>>> getStockPriceList(@PathVariable String from, @PathVariable String to){
+    public Mono<CommonResponse<String>> getStockPriceList(@PathVariable String from, @PathVariable String to){
         // Response 타입 정의할것
-        if(Optional.ofNullable(from).isEmpty()) return Mono.just(CommonResponse.notOk(ResponseType.DATE_NULL, Flux.empty()));
-        if(Optional.ofNullable(to).isEmpty()) return Mono.just(CommonResponse.notOk(ResponseType.DATE_NULL, Flux.empty()));
+        if(Optional.ofNullable(from).isEmpty()) return Mono.just(CommonResponse.notOk(DateExceptionType.DATE_NULL, ""));
+        if(Optional.ofNullable(to).isEmpty()) return Mono.just(CommonResponse.notOk(DateExceptionType.DATE_NULL, ""));
 
         try{
             LocalDate startDt = LocalDate.parse(from, formatter);
@@ -36,10 +35,9 @@ public class FakeResponseController {
         }
         catch (Exception e){
             e.printStackTrace();
-//            return Flux.just("");
+            throw new DateTimeFormatIllegalException(DateExceptionType.DATE_FORMAT_INVALID);
         }
 
-        return null;
-//        return Flux.just("안녕하세여", "잠깐 임시로 테스트할께요", "반갑습니다.");
+        return Mono.empty();
     }
 }
