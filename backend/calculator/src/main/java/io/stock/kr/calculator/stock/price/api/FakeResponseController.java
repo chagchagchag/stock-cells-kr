@@ -1,8 +1,9 @@
 package io.stock.kr.calculator.stock.price.api;
 
-import io.stock.kr.calculator.common.exception.type.DateExceptionType;
 import io.stock.kr.calculator.common.exception.DateTimeFormatIllegalException;
-import io.stock.kr.calculator.common.response.*;
+import io.stock.kr.calculator.common.exception.type.DateExceptionType;
+import io.stock.kr.calculator.common.exception.type.DateTimeExceptionType;
+import io.stock.kr.calculator.common.response.CommonResponse;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +36,7 @@ public class FakeResponseController {
         }
         catch (Exception e){
             e.printStackTrace();
-            throw new DateTimeFormatIllegalException(DateExceptionType.DATE_FORMAT_INVALID);
+            throw new DateTimeFormatIllegalException(DateTimeExceptionType.DATETIME_FORMAT_INVALID);
         }
 
         return Mono.empty();
