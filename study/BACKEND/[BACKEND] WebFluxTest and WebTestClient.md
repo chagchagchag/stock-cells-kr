@@ -73,5 +73,142 @@ Mock User로 스프링 시큐리티를 테스트할 때 사용하는 어노테�
 
 <br>
 
+## 예제1) 정말 단순한 GET 요청 테스트
+
+> 아주 단순한 형태의 GET 요청 테스트 코드<br>
+>
+> (예제2 까지는 단순하게 요청을 보내는 것만 다뤄보고, 예제 3부터 조금 복잡한 예제들을 만들어서 계속 추가해둘 예정)<br>
+>
+> 소스코드의 자세한 부분은 [tdd-you-can-do-it/example_codes/webflux_study/src/test/java/io/study/tdd/webflux_study/hello/hellocontroller at main · soon-good/tdd-you-can-do-it (github.com)](https://github.com/soon-good/tdd-you-can-do-it/tree/main/example_codes/webflux_study/src/test/java/io/study/tdd/webflux_study/hello/hellocontroller) 에서 확인할 수 있다.
+
+<br>
+
+**HelloController.java**<br>
+
+```java
+@RestController
+public class HelloController {
+
+    private final HelloService helloService;
+
+    public HelloController(HelloService helloService){
+        this.helloService = helloService;
+    }
+
+    @GetMapping("/hello/messages")
+    public Flux<Message> getMessages(){
+        return helloService.selectMessages();
+    }
+
+    @GetMapping("/hello/messages/{id}")
+    public Mono<Message> getMessageById(@PathVariable("id") final String id){
+        if(Optional.ofNullable(id).isEmpty()) return Mono.empty();
+        if(id.isEmpty()) return Mono.empty();
+
+        return helloService
+                .findById(Long.parseLong(id))
+                .orElse(Mono.empty());
+    }
+
+}
+```
+
+<br>
+
+**`/hello/messages` API 테스트**<br>
+
+```java
+package io.study.tdd.webflux_study.hello.hellocontroller;
+
+import io.study.tdd.webflux_study.hello.HelloController;
+import io.study.tdd.webflux_study.hello.HelloService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@ExtendWith(SpringExtension.class)
+@WebFluxTest(controllers = HelloController.class)
+public class GetMessagesTest {
+
+    @Autowired
+    private WebTestClient webClient;
+
+    @MockBean
+    private HelloService helloService;
+
+    @Test
+    public void SHOULD_RETURN_OK() {
+        webClient.get().uri("/hello/messages")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.OK);
+    }
+
+}
+```
+
+<br>
+
+**`/hello/messages/{id}` API 테스트**<br>
+
+```java
+package io.study.tdd.webflux_study.hello.hellocontroller;
+
+import io.study.tdd.webflux_study.hello.HelloController;
+import io.study.tdd.webflux_study.hello.HelloService;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@ExtendWith(SpringExtension.class)
+@WebFluxTest(controllers = HelloController.class)
+public class GetMessageByIdTest {
+
+    @Autowired
+    private WebTestClient webClient;
+
+    @MockBean
+    private HelloController helloController;
+
+    @Test
+    public void 일반적인_정상적인_요청에_대한_테스트(){
+        webClient.get().uri("/hello/messages/1")
+                .exchange()
+                .expectStatus().isEqualTo(HttpStatus.OK);
+    }
+}
+```
+
+<br>
+
+## 예제2) 정말 단순한 POST 요청 테스트
+
+> 아주 단순한 형태의 POST 요청 테스트 코드<br>
+>
+> (예제2 까지는 단순하게 요청을 보내는 것만 다뤄보고, 예제 3부터 여러가지 메서드와 경우의 수를 예로 들은 예제들을 만들어서 계속 추가해둘 예정)<br>
+>
+> 소스코드의 자세한 부분은 [tdd-you-can-do-it/example_codes/webflux_study/src/test/java/io/study/tdd/webflux_study/hello/hellocontroller at main · soon-good/tdd-you-can-do-it (github.com)](https://github.com/soon-good/tdd-you-can-do-it/tree/main/example_codes/webflux_study/src/test/java/io/study/tdd/webflux_study/hello/hellocontroller) 에서 확인할 수 있다.
+
+<br>
+
+추가예정...<br>
+
+<br>
+
+## 예제3) 다양한 예제...
+
+
+
+
+
 
 
