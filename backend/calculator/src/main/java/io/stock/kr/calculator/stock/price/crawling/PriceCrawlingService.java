@@ -75,7 +75,7 @@ public class PriceCrawlingService {
     /**
      * @param startDate         startDate
      * @param endDate           endDate
-     * @param totalPageCnt      페이지의 갯수
+     * @param totalPageCnt      페이지내의 데이터 갯수 (= limit)
      * @param partitionSize     파티션 사이즈
      */
     public void pagedRequestAndWrite(LocalDate startDate, LocalDate endDate, long totalPageCnt, int partitionSize){
