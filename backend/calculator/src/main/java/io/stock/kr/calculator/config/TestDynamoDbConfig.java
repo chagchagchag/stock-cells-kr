@@ -11,7 +11,7 @@ import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRep
 import org.springframework.context.annotation.*;
 
 @Configuration
-@Profile({"test-docker", "test-in-memory"})
+@Profile({"test-docker", "test-in-memory", "test-live"})
 @EnableDynamoDBRepositories(
         basePackages = {
                 "io.stock.kr.calculator"
@@ -22,14 +22,14 @@ import org.springframework.context.annotation.*;
         }
 )
 public class TestDynamoDbConfig {
-        @Profile({"test-docker", "test-in-memory"})
+        @Profile({"test-docker", "test-in-memory", "test-live"})
         @Bean
         @Primary
         public DynamoDBMapper dynamoDBMapper(AmazonDynamoDB amazonDynamoDB){
                 return new DynamoDBMapper(amazonDynamoDB);
         }
 
-        @Profile("test-docker")
+        @Profile({"test-docker", "test-live"})
         @Bean
         public AmazonDynamoDB amazonDynamoDB(){
                 AWSStaticCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(
