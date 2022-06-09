@@ -1,1 +1,1 @@
-docker container run --rm -d -p 8000:8000 --name dynamodb-test -d amazon/dynamodb-local:latest -jar DynamoDBLocal.jar -inMemory -sharedDb
+docker container run --rm -d -p 5555:8000 --name dynamodb-test -d amazon/dynamodb-local:latest -jar DynamoDBLocal.jar -inMemory -sharedDb
