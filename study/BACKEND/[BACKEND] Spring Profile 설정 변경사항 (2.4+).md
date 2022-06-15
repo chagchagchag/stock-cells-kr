@@ -39,6 +39,24 @@ spring:
 
 <br>
 
+예를 들면 아래와 같이 사용하는 것을 예로 들 수 있다.
+
+```yaml
+spring:
+  profiles:
+    active: test-containers
+---
+spring:
+  profiles: test-in-memory
+# 그냥 이것 저것 설정들
+---
+spring:
+  profiles: test-containers
+# ... 이것 저것 설정들
+```
+
+<br>
+
 다만, 아래와 같이 `spring.profiles.active` 와 `spring.config.activate.on-profile` 을 하나의 프로필 내에서 같이 쓰는 것은 안된다. 예를 들면 아래와 같은 방식이다.
 
 ```yaml
