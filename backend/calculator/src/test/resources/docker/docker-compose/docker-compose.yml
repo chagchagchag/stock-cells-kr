@@ -10,3 +10,15 @@ services:
       - "mode=standalone"
     ports:
       - 16379:6379
+    links:
+      - redis-commander
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+#    container_name: redis-commander
+    hostname: redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=redis-normal
+#      - REDIS_HOST=redis-normal:redis:16379
+    ports:
+      - 18081:8081
