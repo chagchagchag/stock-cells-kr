@@ -21,11 +21,11 @@ spring:
     active: test-containers
 ---
 spring:
-	profiles: test-in-memory
+  profiles: test-in-memory
 # 그냥 이것 저것 설정들
 ---
 spring:
-	profiles: test-containers
+  profiles: test-containers
 # ... 이것 저것 설정들
 ```
 
