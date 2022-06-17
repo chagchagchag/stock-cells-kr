@@ -1,5 +1,6 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api;
 
+import io.stock.evaluation.reactive_data.ticker.meta.TickerMetaService;
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -16,6 +17,12 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 
 @Component
 public class TickerMetaHandler {
+
+    private final TickerMetaService tickerMetaService;
+
+    public TickerMetaHandler(TickerMetaService tickerMetaService){
+        this.tickerMetaService = tickerMetaService;
+    }
 
     // 페이징 기반으로 전환하는게 맞지만, 처음 써보는 중이라.....
     public Mono<ServerResponse> findAllTicker(ServerRequest request){
