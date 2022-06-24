@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: live
+  redis:
+    host: localhost
+    port: 16379
+amazon:
+  dynamodb:
+    endpoint: "https://dynamodb.ap-northeast-2.amazonaws.com:8000"
+    region: "ap-northeast-2"
+  aws:
+    accessKey: "key"
+    secretKey: "key"
