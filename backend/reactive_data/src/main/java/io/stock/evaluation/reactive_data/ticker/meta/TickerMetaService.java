@@ -8,18 +8,18 @@ import reactor.core.publisher.Flux;
 @Service
 public class TickerMetaService {
 
-    private final ReactiveRedisOperations<String, String> redisOperations;
+    private final ReactiveRedisOperations<String, String> tickerMapReactiveRedisOperation;
 
     public TickerMetaService(
-        ReactiveRedisOperations<String, String> redisOperations
+        ReactiveRedisOperations<String, String> tickerMapReactiveRedisOperation
     ){
-        this.redisOperations = redisOperations;
+        this.tickerMapReactiveRedisOperation = tickerMapReactiveRedisOperation;
     }
 
     // 종목코드(=Ticker), 종목명, DART CODE 셋중 하나로만 입력해도 종목코드(=Ticker)를 찾아서 리턴한다.
     public Flux<TickerMetaItem> findTickerByAny(String key){
         // TODO::구현 예정
-        return redisOperations
+        return tickerMapReactiveRedisOperation
                 .opsForValue().get(key)
                 .flatMapMany(this::findTickerMetaItemByTicker);
     }
