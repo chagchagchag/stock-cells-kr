@@ -1,3 +1,6 @@
+dart:
+  fileName: CORPCODE.xml
+---
 spring:
   profiles:
     active: test-docker

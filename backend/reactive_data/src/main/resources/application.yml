@@ -12,3 +12,5 @@ amazon:
   aws:
     accessKey: "key"
     secretKey: "key"
+dart:
+  fileName: CORPCODE.xml
