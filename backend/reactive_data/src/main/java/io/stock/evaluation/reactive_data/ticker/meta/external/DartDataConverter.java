@@ -25,7 +25,9 @@ import java.util.function.Predicate;
 @Component
 public class DartDataConverter {
 
-    public Flux<TickerMetaItem> findTickers() {
+    // 다트 제공 xml 파일을 Flux<TickerMetaItem> 으로 변환한다.
+    // 추후 Spring Batch 기반의 별도 모듈로 분리 예정
+    public Flux<TickerMetaItem> processTickers() {
         Optional<Path> tickerXmlPath = getDartTickerListXmlPath();
         if(tickerXmlPath.isEmpty()) return Flux.empty();
 
