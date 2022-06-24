@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api;
 
-import io.stock.evaluation.reactive_data.ticker.meta.TickerMetaService;
+import io.stock.evaluation.reactive_data.ticker.meta.application.TickerMetaService;
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;

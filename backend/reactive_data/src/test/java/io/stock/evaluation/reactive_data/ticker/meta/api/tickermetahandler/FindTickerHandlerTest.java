@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api.tickermetahandler;
 
-import io.stock.evaluation.reactive_data.ticker.meta.TickerMetaService;
+import io.stock.evaluation.reactive_data.ticker.meta.application.TickerMetaService;
 import io.stock.evaluation.reactive_data.ticker.meta.api.TickerMetaHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

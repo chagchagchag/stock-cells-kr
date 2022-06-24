@@ -1,4 +1,4 @@
-package io.stock.evaluation.reactive_data.ticker.meta;
+package io.stock.evaluation.reactive_data.ticker.meta.application;
 
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
