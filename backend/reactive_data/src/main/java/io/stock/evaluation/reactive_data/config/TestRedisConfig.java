@@ -9,7 +9,6 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
-import org.springframework.data.redis.core.ReactiveZSetOperations;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -66,11 +65,4 @@ public class TestRedisConfig {
 
         return new ReactiveRedisTemplate<String, TickerMetaItem>(redisConnectionFactory, serializationContext);
     }
-
-//    @Bean
-//    public ReactiveRedisOperations<String, TickerMetaItem> tickerMetaMapZSetOperation(
-//        ReactiveRedisConnectionFactory redisConnectionFactory
-//    ){
-//        new ReactiveZSet
-//    }
 }
