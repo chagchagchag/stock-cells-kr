@@ -6,6 +6,7 @@ import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataConverter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
@@ -24,6 +25,10 @@ public class DartDataToTickerMetaTest {
 
     @Autowired
     ReactiveRedisOperations<String, TickerMetaItem> tickerMetaMapOps;
+
+    @Autowired
+    @Qualifier("tickerAutoCompleteRedisOperation")
+    ReactiveRedisOperations<String, String> tickerMetaAutoCompleteOps;
 
     @Test
     public void TEST_DART_TICKER_PROCESSOR(){
@@ -52,32 +57,6 @@ public class DartDataToTickerMetaTest {
         assertThat(count).isNotZero();
     }
 
-
-    // 검색어 추천을 위해 아래와 같은 종류의 키/밸류를 넣어준다.
-    // - ticker(종목코드)  : TickerMetaItem
-    // - 종목명            : TickerMetaItem
-    @Test
-    public void TEST_REDIS_PUT_TICKER_LIST2(){
-        DartDataConverter converter = new DartDataConverter();
-        Flux<TickerMetaItem> tickerMetaItemFlux = converter.processTickers();
-
-        // 데이터가 모두 저장되는지 여부를 테스트해야 하기에 .block() 을 사용
-        tickerMetaItemFlux.subscribe(
-                tickerMetaItem ->{
-                    tickerMetaMapOps
-                            .opsForZSet()
-                            .add("SEARCH-STOCK-"+tickerMetaItem.getTicker(), tickerMetaItem, 0).block();
-
-                    tickerMetaMapOps
-                            .opsForValue()
-                            .set("SEARCH-STOCK-"+tickerMetaItem.getCompanyName(), tickerMetaItem, 0).block();
-                }
-        );
-
-        Long count = tickerMetaMapOps.keys("SEARCH-STOCK-*").count().block();
-        assertThat(count).isNotZero();
-    }
-
     @Disabled
     @Test
     public void TEST_REDIS_AUTO_COMPLETE_SIMPLE(){
@@ -92,8 +71,36 @@ public class DartDataToTickerMetaTest {
                 }
         );
 
-//        Long count = tickerMetaMapOps.keys("AUTO-COMPLETE-*").count().block();
-        long count = tickerMetaMapOps.opsForHash().entries("AUTO-COMPLETE").count().block();
-        assertThat(count).isNotZero();
+        ScanOptions scanOption = ScanOptions.scanOptions().match("A*").build();
+        tickerMetaMapOps.opsForHash().scan("AUTO-COMPLETE", scanOption).subscribe(entry -> System.out.println(entry.getValue()));
+    }
+
+    public Flux<TickerMetaItem> tickerMetaItems(){
+        DartDataConverter converter = new DartDataConverter();
+        return converter.processTickers();
+    }
+
+    final String DELIMITER = "###";
+
+    @Test
+    public void test_zset(){
+        tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼", 0).block();
+        tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼성", 0).block();
+        tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼성전", 0).block();
+        tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼성전자", 0).block();
+    }
+
+    @Test
+    public void TEST_AUTOCOMPLETE(){
+        tickerMetaItems()
+                .subscribe(tickerMetaItem -> {
+                    final StringBuilder companyName = new StringBuilder(tickerMetaItem.getCompanyName());
+                    for(int i=1; i<companyName.length(); i++){
+                        tickerMetaAutoCompleteOps.opsForZSet()
+                                .add("AUTO-COMPLETE-TICKER", companyName.substring(0,i), 0).block();
+                    }
+                });
+
+
     }
 }
