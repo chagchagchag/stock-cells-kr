@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,6 +90,36 @@ public class TickerMetaRedisService {
         }
 
         return Flux.fromIterable(results);
+    }
+
+    /**
+     * 회사명 : TickerMataItem
+     * ticker : TickerMetaItem
+     * 키/밸류로 하는 매핑 데이터를 캐시에 저장
+     */
+    public void saveAllCompanyNamesToRedis(){
+        tickerMetaItemFlux()
+                .subscribe(tickerMetaItem -> {
+//                    SearchTickerKeyBuilder builderByCompanyName = new SearchTickerKeyBuilder(SearchTickerType.BY_COMPANY_NAME, tickerMetaItem);
+                    SearchTickerKeyBuilder builderByCompanyName = SearchTickerKeyBuilder.newGenerateKeyBuilder(SearchTickerType.BY_COMPANY_NAME, tickerMetaItem);
+                    tickerMetaMapOps.opsForValue().set(builderByCompanyName.generateKey(), tickerMetaItem).block();
+
+//                    SearchTickerKeyBuilder builderByTicker = new SearchTickerKeyBuilder(SearchTickerType.BY_TICKER, tickerMetaItem);
+                    SearchTickerKeyBuilder builderByTicker = SearchTickerKeyBuilder.newGenerateKeyBuilder(SearchTickerType.BY_TICKER, tickerMetaItem);
+                    tickerMetaMapOps.opsForValue().set(builderByTicker.generateKey(), tickerMetaItem).block();
+                });
+    }
+
+    /**
+     * 회사명으로 검색해도 TickerMetaItem, ticker(회사코드)로 검색해도 TickerMetaItem 이 리턴된다.
+     * @param query {companyName | ticker}
+     * @return TickerMetaItem
+     */
+    public Mono<TickerMetaItem> searchTickerMetaItem(String query){
+//        SearchTickerKeyBuilder searchTickerKeyBuilder = new SearchTickerKeyBuilder(SearchTickerType.BY_COMPANY_NAME);
+        SearchTickerKeyBuilder searchTickerKeyBuilder = SearchTickerKeyBuilder.newSearchKeyBuilder(SearchTickerType.BY_COMPANY_NAME);
+        String searchKey = searchTickerKeyBuilder.searchKey(query);
+        return tickerMetaMapOps.opsForValue().get(searchKey);
     }
 
 }

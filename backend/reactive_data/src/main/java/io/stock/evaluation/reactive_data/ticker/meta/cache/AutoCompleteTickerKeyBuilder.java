@@ -4,7 +4,8 @@ import lombok.Getter;
 
 @Getter
 public class AutoCompleteTickerKeyBuilder {
-    final String prefix = "AUTO-COMPLETE";
+//    final String prefix = "AUTO-COMPLETE";
+    final String prefix = TickerCachePrefixType.AUTO_COMPLETE.getCachePrefixTypeName();
     final String separator = "###";
     final String finisher = "§§§";
 
