@@ -65,4 +65,22 @@ public class TestRedisConfig {
 
         return new ReactiveRedisTemplate<String, TickerMetaItem>(redisConnectionFactory, serializationContext);
     }
+
+    @Bean
+    public ReactiveRedisOperations<String, String> tickerAutoCompleteRedisOperation(
+        ReactiveRedisConnectionFactory redisConnectionFactory
+    ){
+        StringRedisSerializer keySerializer = new StringRedisSerializer();
+        StringRedisSerializer valueSerializer = new StringRedisSerializer();
+
+        RedisSerializationContext<String, String> serializationContext =
+                RedisSerializationContext.<String, String>newSerializationContext()
+                        .key(keySerializer)
+                        .value(valueSerializer)
+                        .hashKey(keySerializer)
+                        .hashValue(valueSerializer)
+                        .build();
+
+        return new ReactiveRedisTemplate<String, String>(redisConnectionFactory, serializationContext);
+    }
 }

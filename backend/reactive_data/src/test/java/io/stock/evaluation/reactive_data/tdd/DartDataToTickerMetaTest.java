@@ -9,10 +9,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Range;
+import org.springframework.data.domain.Range.Bound;
+import org.springframework.data.redis.connection.RedisZSetCommands;
+import org.springframework.data.redis.connection.RedisZSetCommands.Limit;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -101,9 +111,16 @@ public class DartDataToTickerMetaTest {
         }
 
         public String generateKey(){
-            builder.append("AUTO-COMPLETE").append(separator)
+            builder.append(prefix).append(separator)
                     .append(companyName.substring(0,1)).append(separator)
                     .append(companyName.length());
+            return builder.toString();
+        }
+
+        public String searchKey(){
+            StringBuilder builder = new StringBuilder();
+            builder.append(prefix).append(separator)
+                    .append(companyName.substring(0,1)).append(separator);
             return builder.toString();
         }
     }
@@ -117,7 +134,7 @@ public class DartDataToTickerMetaTest {
                     String key = builder.generateKey();
 
                     tickerMetaAutoCompleteOps.opsForZSet()
-                            .add(key, tickerMetaItem.getCompanyName() + "$$$", 1).block();
+                            .add(key, tickerMetaItem.getCompanyName() + "§§§", 1).block();
 
                     for(int i=1; i<companyName.length(); i++){
                         tickerMetaAutoCompleteOps.opsForZSet()
@@ -125,4 +142,52 @@ public class DartDataToTickerMetaTest {
                     }
                 });
     }
+
+    @Test
+    public void TEST_AUTO_COMPLETE_TEST(){
+//        String companyName = "삼";
+        String companyName = "삼성전자";
+        Double min = 0D;
+        Double max = 5D;
+        int count = 30;
+
+        String keyword = companyName.trim();
+        int len = keyword.length();
+
+        AutoCompleteTickerKeyBuilder builder = new AutoCompleteTickerKeyBuilder(companyName);
+        final String key = builder.searchKey();
+        System.out.println(key);
+
+        // 참고 : https://www.programcreek.com/java-api-examples/?api=org.springframework.data.domain.Range
+        final Bound<Double> lowerBound = Bound.inclusive(min);
+        final Bound<Double> upperBound = Bound.inclusive(max);
+        Range<Double> range = Range.of(lowerBound, upperBound);
+        Limit limit = new Limit();
+        limit.offset(0);
+        limit.count(count);
+
+        Pattern pattern = Pattern.compile(".*\\§§§");
+
+        List<String> results = new ArrayList<>();
+        for(int i=len; i<count; i++){
+            if(results.size() == count) break;
+            Flux<ZSetOperations.TypedTuple<String>> typedTupleFlux = tickerMetaAutoCompleteOps
+                    .opsForZSet()
+                    .reverseRangeByScoreWithScores(key+i, range, limit);
+
+            typedTupleFlux.subscribe(tuple -> {
+                if(results.size() < count){
+                    String value = tuple.getValue().trim();
+                    int minLen = Math.min(value.length(), keyword.length());
+                    if(pattern.matcher(value).matches() && value.startsWith(keyword.substring(0, minLen))){
+                        System.out.println(value);
+                        results.add(value.replace("§§§", ""));
+                    }
+                }
+            });
+
+        }
+    }
+
+
 }
