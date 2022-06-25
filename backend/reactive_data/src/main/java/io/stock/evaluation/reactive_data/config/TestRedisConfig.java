@@ -1,6 +1,7 @@
 package io.stock.evaluation.reactive_data.config;
 
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -8,6 +9,7 @@ import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
+import org.springframework.data.redis.core.ReactiveZSetOperations;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -15,10 +17,16 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Profile("test-docker")
 @Configuration
 public class TestRedisConfig {
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
     @Bean(name = "reactiveRedisConnectionFactory")
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory(){
         // 추후 Embedded Redis 로 전환 예정.
-        return new LettuceConnectionFactory("localhost", 16379);
+        return new LettuceConnectionFactory(host, port);
     }
 
     @Bean
@@ -58,4 +66,11 @@ public class TestRedisConfig {
 
         return new ReactiveRedisTemplate<String, TickerMetaItem>(redisConnectionFactory, serializationContext);
     }
+
+//    @Bean
+//    public ReactiveRedisOperations<String, TickerMetaItem> tickerMetaMapZSetOperation(
+//        ReactiveRedisConnectionFactory redisConnectionFactory
+//    ){
+//        new ReactiveZSet
+//    }
 }
