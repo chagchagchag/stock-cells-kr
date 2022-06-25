@@ -3,19 +3,16 @@ package io.stock.evaluation.reactive_data.tdd;
 
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
 import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataConverter;
+import lombok.Getter;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,17 +87,42 @@ public class DartDataToTickerMetaTest {
         tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼성전자", 0).block();
     }
 
+    @Getter
+    class AutoCompleteTickerKeyBuilder {
+        final String prefix = "AUTO-COMPLETE";
+        final String separator = "###";
+        final String finisher = "$$$";
+
+        final String companyName;
+        final StringBuilder builder = new StringBuilder();
+
+        public AutoCompleteTickerKeyBuilder(String companyName){
+            this.companyName = companyName;
+        }
+
+        public String generateKey(){
+            builder.append("AUTO-COMPLETE").append(separator)
+                    .append(companyName.substring(0,1)).append(separator)
+                    .append(companyName.length());
+            return builder.toString();
+        }
+    }
+
     @Test
-    public void TEST_AUTOCOMPLETE(){
+    public void TEST_SAVE_TICKERS_TO_REDIS(){
         tickerMetaItems()
                 .subscribe(tickerMetaItem -> {
-                    final StringBuilder companyName = new StringBuilder(tickerMetaItem.getCompanyName());
+                    final String companyName = tickerMetaItem.getCompanyName();
+                    AutoCompleteTickerKeyBuilder builder = new AutoCompleteTickerKeyBuilder(companyName);
+                    String key = builder.generateKey();
+
+                    tickerMetaAutoCompleteOps.opsForZSet()
+                            .add(key, tickerMetaItem.getCompanyName() + "$$$", 1).block();
+
                     for(int i=1; i<companyName.length(); i++){
                         tickerMetaAutoCompleteOps.opsForZSet()
-                                .add("AUTO-COMPLETE-TICKER", companyName.substring(0,i), 0).block();
+                                .add(key, companyName.substring(0,i), 0).block();
                     }
                 });
-
-
     }
 }
