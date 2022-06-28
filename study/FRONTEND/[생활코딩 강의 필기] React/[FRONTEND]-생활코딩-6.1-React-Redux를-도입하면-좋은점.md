@@ -8,6 +8,21 @@
 
 이런 이유로 순수 redux 보다는 react-redux를 사용하는 것이 좋다. react-redux 는 조금 쉽게 설명하면 redux 관련 코드들을 react 에서 사용하기 편리하도록 공통된 내용들을 잘 추상화해둔 라이브러리 라고 이해하면 쉽다.<br>
 
+# 참고) 약칭정의
+
+**connect 함수의 원형**
+
+문서 곳곳에서 connect 함수를 언급할 때 인자값의 약칭을 사용해 아래의 표현으로 connect() 함수를 지칭하기로 했다.
+
+```jsx
+connect(m1,m2)(WrappedComponent);
+// m1 : mapStateToProps
+// m2 : mapDispatchToPRops
+// WrappedComponent : 전달해줄 프리젠테이셔널 컴포넌트
+```
+
+<br>
+
 <br>
 
 # 참고강의
