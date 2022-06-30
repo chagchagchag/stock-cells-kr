@@ -15,6 +15,10 @@
 - [Search Bar with Autocomplete Search Suggestions in JavaScript - DEV Community](https://dev.to/codingnepal/search-bar-with-autocomplete-search-suggestions-in-javascript-32dn) 
 - [Search Bar with Auto-complete Search Suggestions using HTML CSS & JavaScript - YouTube](https://www.youtube.com/watch?v=QxMBHi_ZiT8) 
 
+awesomefont 관련 자료
+
+- [폰트어썸 - Font Awesome 아이콘 사용법 (tistory.com)](https://amango.tistory.com/7)
+
 <br>
 
 # 프로젝트 셋업
