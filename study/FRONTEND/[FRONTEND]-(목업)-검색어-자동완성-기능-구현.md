@@ -10,6 +10,11 @@
 
 [Quick Autocomplete App With JS & JSON - YouTube](https://www.youtube.com/watch?v=1iysNUrI3lw)<br>
 
+참고할만한 자료 2)
+
+- [Search Bar with Autocomplete Search Suggestions in JavaScript - DEV Community](https://dev.to/codingnepal/search-bar-with-autocomplete-search-suggestions-in-javascript-32dn) 
+- [Search Bar with Auto-complete Search Suggestions using HTML CSS & JavaScript - YouTube](https://www.youtube.com/watch?v=QxMBHi_ZiT8) 
+
 <br>
 
 # 프로젝트 셋업
