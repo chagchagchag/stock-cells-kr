@@ -24,7 +24,7 @@ NPM 을 최신버전으로 업그레이드 하면 NPX 역시도 그에 맞는 �
 
 ## NPX 로 CREATE-REACT-APP 을 활용해 리액트 앱 생성
 
-NPM의 TAR 패키지 관련 이슈가 있기도 하고, 가급적 최신 버전으로 앱을 생성하고 싶으면 create-react-app 을 npm 으로 생성하면 된다.<br>
+NPM의 TAR 패키지 관련 이슈가 있기도 하고, 가급적 최신 버전으로 앱을 생성하고 싶으면 create-react-app 을 npx 로 생성하면 된다.<br>
 
 > npx 로 react 를 다운로드 받을 때 `create-react-app` 이라는 패키지를 임시로 다운로드 받은 후에 임시로 다운받았던 `create-react-app` 을 이용해서 리액티 앱을 생성한다.<br>
 
@@ -54,6 +54,14 @@ npm craete-react-app hello-world2
 <br>
 
 내 경우는 `npx craete-react-app hello-world` 와 같은 형식으로 설치했다.<br>
+
+<br>
+
+또는 현재디렉터리를 react 프로젝트 디렉터리의 루트로 설정하고 싶을 때가 있다. 그럴때는 이렇게 하면 된다.
+
+```bash
+npx create-react-app .
+```
 
 <br>
 
