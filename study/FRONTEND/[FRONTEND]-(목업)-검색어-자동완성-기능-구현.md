@@ -2,6 +2,8 @@
 
 보통 이렇게 UI 기능만 구현된 페이지를 목업페이지라고 불렀던것 같은데, 내가 잘못 기억하고 있는 거일수도 있다.<br>
 
+전체 코드는 [여기](https://github.com/soon-good/web-ui-snipppets/tree/main/snippets/auto-complete) 에 저장해두었다.<br>
+
 <br>
 
 # 참고자료
