@@ -15,7 +15,7 @@ react-bootstrap-table2 사용을 포기하게 된 이유
 
 [material-table](https://github.com/mbrn/material-table)
 
-- csv export example : [material-table](https://material-table.com/#/docs/features/export) 
+- csv export example : [material-table](https://material-table.com/#/docs/features/export) , [Custom Row Export | @material-table/core](https://material-table-core.com/demos/export/custom/) 
 - 다국어가 지원되는지 여부를 먼저 조사했다.
 - 잘되는 것 같다.
 - 일단 내일 부터는 이것으로 진행하게 될 것 같다.
@@ -37,10 +37,18 @@ jquery 기반 순수 bootstrap-table (첫번째, 두번째 모두 보류해야 �
 
 - [Top 5 React Table Libraries](https://blog.bitsrc.io/top-5-react-table-libraries-170505f75da7)
 
+- [Top 5 React Table Libraries. Recommended table libraries for react | by Shanika Wickramasinghe | Bits and Pieces](https://blog.bitsrc.io/top-5-react-table-libraries-170505f75da7)
+
+- [mbrn/material-table: Datatable for React based on material-ui's table with additional features](https://github.com/mbrn/material-table)
+
 - [RC-TABLE](https://github.com/react-component/table) 
 
 - [React Table](https://react-table.tanstack.com/) 
 
-- [Material UI Data Tables](https://github.com/gregnb/mui-datatables) 를 모두 사용해보고 어떤걸 사용할 지 결정하게 될 듯 하다. <br>
+- [Material UI Data Tables](https://github.com/gregnb/mui-datatables) 
+
+- [Top 10 React Grid components and libraries for 2021 - LogRocket Blog](https://blog.logrocket.com/top-10-react-grid-components-and-libraries-for-2021/)
+
+- [react table library - Google 검색](https://www.google.com/search?q=react+table+library&oq=react+table+library&aqs=chrome..69i57j0i20i263i512j0i512l3j0i30j0i10i30j0i30j0i5i30l2.4984j0j1&sourceid=chrome&ie=UTF-8)
 
 <br>
