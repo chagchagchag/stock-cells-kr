@@ -3,11 +3,14 @@ import './theme/flatly-bootstrap.min.css';
 
 import './search/SearchInput';
 import SearchInput from './search/SearchInput';
+import PriceCells from './price-cells/PriceCells';
+import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
 function App() {
   return (
     <div className='container mt-5'>
       <SearchInput></SearchInput>
+      {/* <PriceCells></PriceCells> */}
     </div>
   );
 }
