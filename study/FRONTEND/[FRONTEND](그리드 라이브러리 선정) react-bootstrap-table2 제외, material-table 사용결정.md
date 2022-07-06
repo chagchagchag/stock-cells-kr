@@ -28,6 +28,7 @@ jquery 기반 순수 bootstrap-table (첫번째, 두번째 모두 보류해야 �
 - 순수 bootstrap-table 라이브러리는 csv, pdf, excel 모두 지원했던걸로 기억한다.
 - 물론 다국어지원이 되는지는 테스트를 해봐야할듯 하다.
 - [Bootstrap Table Examples](https://examples.bootstrap-table.com/#extensions/export.html#view-source) 
+- https://live.bootstrap-table.com/example/extensions/export.html
 - [Online Editor - Bootstrap Table](https://live.bootstrap-table.com/example/extensions/export.html)
   - 이건 직접 작성해봐야 한다. `data-url` 에 사용된 json 데이터를 쓰기에 직접 코드를 작성해봐야 지원이되는지를 알 수 있다.
 
