@@ -10,13 +10,13 @@ import SearchInput from './search/SearchInput';
 // import PriceCells from './demo/cells/react-bootstrap-table2/PriceCells';
 // import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css';
 
-import BuyingPlanCellAgGrid from './planner/buy/BuyingPlanCellAgGrid';
+import BuyingPlanCell from './planner/buy/BuyingPlanCell';
 
 function App() {
   return (
     <div className='container mt-5'>
       <SearchInput></SearchInput>
-      <BuyingPlanCellAgGrid></BuyingPlanCellAgGrid>
+      <BuyingPlanCell style={{width: '100%', height: '100%'}}></BuyingPlanCell>
     </div>
   );
 }

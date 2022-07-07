@@ -4,7 +4,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './styles/styles-ag-grid.css';
 
-class BuyPlannerCellAgGrid extends Component {
+class BuyPlannerCell extends Component {
 
 	constructor(props) {
 		super(props);
@@ -19,8 +19,8 @@ class BuyPlannerCellAgGrid extends Component {
 		  popupParent: document.body,
 		  columnDefs: [{ field: 'make' }, { field: 'model' }, { field: 'price' }],
 		  rowData: [
-			{ make: 'Toyota', model: 'Celica', price: 35000 },
-			{ make: 'Ford', model: 'Mondeo', price: 32000 },
+			{ make: 'Toyota', model: '한국', price: 35000 },
+			{ make: 'Ford', model: '미국', price: 32000 },
 			{ make: 'Porsche', model: 'Boxster', price: 72000 },
 		  ],
 		};
@@ -53,7 +53,8 @@ class BuyPlannerCellAgGrid extends Component {
 					</div>
 
 					<div style={{ flex: '1 1 0', position: 'relative' }}>
-						<div id="gridContainer">
+					{/* <div style={{flex: '1 1 0'}}> */}
+						<div id="gridContainer" style={{height: '500px', width: '100%'}}>
 							<div style={{height: '100%', width: '100%'}} className="ag-theme-alpine">
 							{/* <div style={{height: '100%'}} className="ag-theme-alpine"> */}
 								<AgGridReact 
@@ -79,4 +80,4 @@ class BuyPlannerCellAgGrid extends Component {
 	}
 }
 
-export default BuyPlannerCellAgGrid;
+export default BuyPlannerCell;
