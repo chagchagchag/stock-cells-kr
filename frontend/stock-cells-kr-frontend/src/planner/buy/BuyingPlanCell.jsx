@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+// import 'ag-grid-community/styles/ag-theme-alpine.css';
 import './styles/styles-ag-grid.css';
+import './styles/ag-theme-alpine-dark.css';
 
 class BuyPlannerCell extends Component {
 
@@ -10,19 +11,19 @@ class BuyPlannerCell extends Component {
 		super(props);
 	
 		this.state = {
-		  defaultColDef: {
-			editable: true,
-			resizable: true,
-			minWidth: 100,
-			flex: 1,
-		  },
-		  popupParent: document.body,
-		  columnDefs: [{ field: 'make' }, { field: 'model' }, { field: 'price' }],
-		  rowData: [
-			{ make: 'Toyota', model: '한국', price: 35000 },
-			{ make: 'Ford', model: '미국', price: 32000 },
-			{ make: 'Porsche', model: 'Boxster', price: 72000 },
-		  ],
+			defaultColDef: {
+				editable: true,
+				resizable: true,
+				minWidth: 100,
+				flex: 1,
+			},
+			popupParent: document.body,
+			columnDefs: [
+				{ field: 'price' }, {field: 'changedRatio'}, { field: 'changedPrice' }, {field: 'chnagedPer'}
+			],
+			rowData: [
+				{price: 35000, changedRatio: 90, changedPrice: 35000*0.9, changedPer: 111}
+			],
 		};
 	}
 	
@@ -53,9 +54,8 @@ class BuyPlannerCell extends Component {
 					</div>
 
 					<div style={{ flex: '1 1 0', position: 'relative' }}>
-					{/* <div style={{flex: '1 1 0'}}> */}
 						<div id="gridContainer" style={{height: '500px', width: '100%'}}>
-							<div style={{height: '100%', width: '100%'}} className="ag-theme-alpine">
+							<div style={{height: '100%', width: '100%'}} className="ag-theme-alpine-dark">
 							{/* <div style={{height: '100%'}} className="ag-theme-alpine"> */}
 								<AgGridReact 
 									defaultColDef={this.state.defaultColDef}
@@ -71,8 +71,8 @@ class BuyPlannerCell extends Component {
 								/> */}
 							</div>
 						</div>
-						<textarea id="csvResult" defaultValue={"Click the Show CSV export content button to view exported CSV here"}>
-						</textarea>
+						{/* <textarea id="csvResult" defaultValue={"Click the Show CSV export content button to view exported CSV here"}>
+						</textarea> */}
 					</div>
 				</div>
 			</div>
