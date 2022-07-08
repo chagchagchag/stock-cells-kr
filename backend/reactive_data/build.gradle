@@ -17,7 +17,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+	// jsoup
+	implementation 'org.jsoup:jsoup:1.14.3'
 
 	// dynamodb
 	implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.12.224'
@@ -29,6 +31,8 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+	// h2
+	testImplementation 'com.h2database:h2:2.1.210'
 
 	// test lombok
 	testCompileOnly 'org.projectlombok:lombok'
