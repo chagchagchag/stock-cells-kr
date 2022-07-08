@@ -81,7 +81,7 @@ public class NaverFinanceCrawlingTest {
         String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl("005930");
 
         // TODO
-        // Builder 내에서 CrawlingDataBuilder 를 받아서 타입별로 조합하게끔 구조를 바꿔보는 시도를 해볼것!!
+        // Builder 내에서 CrawlingDataType 을 받아서 타입별로 조합하게끔 구조를 바꿔보는 시도를 해볼것!!
         final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
 
         getDocument(targetUrl)
