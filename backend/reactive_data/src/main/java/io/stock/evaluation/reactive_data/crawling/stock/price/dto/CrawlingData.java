@@ -1,4 +1,4 @@
-package io.stock.evaluation.reactive_data.crawling.price;
+package io.stock.evaluation.reactive_data.crawling.stock.price.dto;
 
 import lombok.Getter;
 import lombok.ToString;

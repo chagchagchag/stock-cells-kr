@@ -1,33 +1,24 @@
 package io.stock.evaluation.reactive_data.crawling.price;
 
+import io.stock.evaluation.reactive_data.crawling.stock.price.application.CrawlingValuationService;
+import io.stock.evaluation.reactive_data.crawling.stock.price.dto.CrawlingData;
+import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataType;
 import io.stock.evaluation.reactive_data.crawling.types.NaverFinanceParameterType;
 import lombok.Getter;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class NaverFinanceCrawlingTest {
 
-//    public Mono<Document>
-    public Mono<Document> getDocument(String url){
-        try{
-            return Mono.just(Jsoup.connect(url).get());
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        return Mono.empty();
-    }
+    private final CrawlingValuationService service = new CrawlingValuationService();
 
     @Test
     public void URL_TEST(){
@@ -36,135 +27,21 @@ public class NaverFinanceCrawlingTest {
     }
 
     @Test
-    public void DOCUMENT_TEST(){
-        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl("005930");
-
-        Mono<Elements> element = getDocument(targetUrl)
-                .map(document -> {
-                    String selector = "em[id='_per']";
-                    return document.select(selector);
-                })
-                .log();
-
-        StepVerifier.create(element)
-                .expectNextMatches(el -> el.attr("id").equals("_per"))
-                .verifyComplete();
-
-//        StepVerifier.create()
-    }
-
-    @Test
-    public void DOCUMENT_TEST_USING_FLATMAP(){
-        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl("005930");
-        final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
-
-        Flux<Elements> eachSelectJobs = getDocument(targetUrl)
-                .flatMapMany(document ->
-                        Flux.just(
-                                document.select("em[id='_per']"),
-                                document.select("em[id='_eps']"),
-                                document.select("em[id='_pbr']"),
-                                document.select("em[id='_dvr']"),
-                                document.select("em[id='_market_sum']")
-                        )
-                );
-
-        eachSelectJobs.subscribe(elements -> {
-            String type = elements.attr("id").substring(1);
-            StringBuilder builder = new StringBuilder().append("type = ").append(type).append(", ").append("text = ").append(elements.text());
-            System.out.println(builder.toString());
-        });
-    }
-
-    @Test
     public void DOCUMENT_TEST_USING_FLATMAP_USING_BUILDER(){
-        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl("005930");
+        String ticker = "005930";
+        Mono<CrawlingData> data = service.crawlingNaverFinanceData(ticker);
 
-        // TODO
-        // Builder 내에서 CrawlingDataType 을 받아서 타입별로 조합하게끔 구조를 바꿔보는 시도를 해볼것!!
-        final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
-
-        getDocument(targetUrl)
-                .flatMapMany(document ->
-                        Flux.just(
-                                document.select("em[id='_per']"),
-                                document.select("em[id='_eps']"),
-                                document.select("em[id='_pbr']"),
-                                document.select("em[id='_dvr']"),
-                                document.select("em[id='_market_sum']")
-                        )
-                )
-                .map(elements -> {
-                    String type = elements.attr("id").substring(1);
-                    String value = elements.text();
-                    System.out.println("type = " + type);
-                    CrawlingDataType.typeOf(type).bindParameter(dataBuilder, value);
-                    return elements;
-                })
-                .blockLast();
-
-        CrawlingData data = dataBuilder.build();
-        System.out.println(data);
-
-        assertThat(data.getPer()).isNotEmpty();
-        assertThat(data.getPbr()).isNotEmpty();
-        assertThat(data.getEps()).isNotEmpty();
-        assertThat(data.getMarketSum()).isNotEmpty();
-    }
-
-    @Getter
-    enum CrawlingDataType {
-        PER("per"){
-            @Override
-            public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-                builder.per(value);
-            }
-        },
-        EPS("eps"){
-            @Override
-            public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-                builder.eps(value);
-            }
-        },
-        PBR("pbr"){
-            @Override
-            public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-                builder.pbr(value);
-            }
-        },
-        DVR("dvr"){
-            @Override
-            public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-                builder.dvr(value);
-            }
-        },
-        MARKET_SUM("market_sum"){
-            @Override
-            public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-                builder.marketSum(value);
-            }
+        Predicate<CrawlingData> isNotEmpty = d -> {
+            if(d.getPer() == null) return false;
+            if(d.getEps() == null) return false;
+            if(d.getPbr() == null) return false;
+            if(d.getMarketSum() == null) return false;
+            return true;
         };
 
-        private final String dataName;
-
-        CrawlingDataType(String dataName){
-            this.dataName = dataName;
-        }
-
-        public abstract void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value);
-
-        private static final Map<String, CrawlingDataType> typeMap = new HashMap<>();
-
-        static{
-            for(CrawlingDataType type : CrawlingDataType.values()){
-                typeMap.putIfAbsent(type.getDataName(), type);
-                typeMap.putIfAbsent(type.getDataName().toUpperCase(), type);
-            }
-        }
-
-        public static CrawlingDataType typeOf(String dataName){
-            return typeMap.get(dataName);
-        }
+        StepVerifier.create(data)
+                .expectNextMatches(isNotEmpty)
+                .verifyComplete();
     }
 
     // 테스트 용도로만 사용하기 위한 POJO 클래스
