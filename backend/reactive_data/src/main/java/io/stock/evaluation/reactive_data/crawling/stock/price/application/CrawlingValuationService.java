@@ -5,9 +5,11 @@ import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataT
 import io.stock.evaluation.reactive_data.crawling.types.NaverFinanceParameterType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Component
 public class CrawlingValuationService {
 
     public Mono<Document> getDocument(String url){
@@ -19,7 +21,7 @@ public class CrawlingValuationService {
         return Mono.empty();
     }
 
-    public Mono<CrawlingData> crawlingNaverFinanceData(String ticker){
+    public Mono<CrawlingData> getPriceBasicValuationData(String ticker){
         String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
         final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
 
@@ -36,6 +38,7 @@ public class CrawlingValuationService {
                 .map(elements -> {
                     String type = elements.attr("id").substring(1);
                     String value = elements.text();
+//                    String text = new StringBuilder().append("type = ").append(type).append(", data = ").append(value).toString();
                     CrawlingDataType.typeOf(type).bindParameter(dataBuilder, value);
                     return elements;
                 })

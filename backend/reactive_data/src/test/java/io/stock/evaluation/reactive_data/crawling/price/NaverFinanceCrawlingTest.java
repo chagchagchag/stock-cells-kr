@@ -29,7 +29,7 @@ public class NaverFinanceCrawlingTest {
     @Test
     public void DOCUMENT_TEST_USING_FLATMAP_USING_BUILDER(){
         String ticker = "005930";
-        Mono<CrawlingData> data = service.crawlingNaverFinanceData(ticker);
+        Mono<CrawlingData> data = service.getPriceBasicValuationData(ticker);
 
         Predicate<CrawlingData> isNotEmpty = d -> {
             if(d.getPer() == null) return false;
