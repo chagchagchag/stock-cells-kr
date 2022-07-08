@@ -1,7 +1,6 @@
 package io.stock.evaluation.reactive_data.price.api;
 
 import io.stock.evaluation.reactive_data.crawling.stock.price.application.CrawlingValuationService;
-import io.stock.evaluation.reactive_data.crawling.stock.price.dto.CrawlingData;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -23,11 +22,12 @@ public class PriceHandler {
     public Mono<ServerResponse> getPriceBasicValuation (ServerRequest serverRequest){
         return serverRequest.queryParam("ticker")
                 .map(ticker -> {
-                    CrawlingData cdata = crawlingValuationService.getPriceBasicValuationData(ticker).block();
-                    return ok()
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(BodyInserters.fromValue(cdata))
-                            .switchIfEmpty(notFound().build());
+                    return crawlingValuationService.getPriceBasicValuationData(ticker)
+                            .flatMap(cdata -> ok()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(BodyInserters.fromValue(cdata))
+                                        .switchIfEmpty(notFound().build())
+                            );
                 })
                 .orElse(notFound().build());
     }

@@ -5,9 +5,12 @@ import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataT
 import io.stock.evaluation.reactive_data.crawling.types.NaverFinanceParameterType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Component
 public class CrawlingValuationService {
@@ -25,7 +28,7 @@ public class CrawlingValuationService {
         String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
         final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
 
-        getDocument(targetUrl)
+        return getDocument(targetUrl)
                 .flatMapMany(document ->
                         Flux.just(
                                 document.select("em[id='_per']"),
@@ -38,12 +41,10 @@ public class CrawlingValuationService {
                 .map(elements -> {
                     String type = elements.attr("id").substring(1);
                     String value = elements.text();
-//                    String text = new StringBuilder().append("type = ").append(type).append(", data = ").append(value).toString();
-                    CrawlingDataType.typeOf(type).bindParameter(dataBuilder, value);
-                    return elements;
+                    dataBuilder.bindParameter(type, value);
+                    return dataBuilder;
                 })
-                .blockLast();
-
-        return Mono.just(dataBuilder.build());
+                .last()
+                .map(builder -> builder.build());
     }
 }

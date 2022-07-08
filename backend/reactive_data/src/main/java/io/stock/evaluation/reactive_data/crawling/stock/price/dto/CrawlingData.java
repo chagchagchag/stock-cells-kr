@@ -1,5 +1,6 @@
 package io.stock.evaluation.reactive_data.crawling.stock.price.dto;
 
+import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataType;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -31,6 +32,11 @@ public class CrawlingData {
 
         public CrawlingDataBuilder builder(){
             return new CrawlingDataBuilder();
+        }
+
+        public CrawlingDataBuilder bindParameter(String paramName, String value){
+            CrawlingDataType.typeOf(paramName).bindParameter(this, value);
+            return this;
         }
 
         public CrawlingDataBuilder per(String per){
