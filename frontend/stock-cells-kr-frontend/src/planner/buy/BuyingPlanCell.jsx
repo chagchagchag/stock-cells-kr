@@ -45,6 +45,7 @@ class BuyPlannerCell extends Component {
 					]
 				}
 			],
+			// 샘플 데이터... 기다려라... 데이터 연동 (백엔드 작업 & DB 작업) 이제 시작한다!!!
 			rowData: [
 				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 99, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
 				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 98, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
