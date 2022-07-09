@@ -69,11 +69,11 @@ public class TickerStockRedisService {
                 });
     }
 
-    public Flux<Mono<Boolean>> saveAllPartialWordTickers(Flux<TickerStockDto> tickerFlux){
+    public Flux<Mono<KeyPair>> saveAllPartialWordTickers(Flux<TickerStockDto> tickerFlux){
         return tickerFlux
                 .map(keyPairListFunc)
                 .flatMap(keyPairs -> Flux.fromIterable(keyPairs))
-                .map(keyPair -> tickerMetaAutoCompleteRedisOps.opsForZSet().add(keyPair.key(), keyPair.value(), 0));
+                .map(keyPair -> tickerMetaAutoCompleteRedisOps.opsForZSet().add(keyPair.key(), keyPair.value(), 0).map(b -> keyPair));
     }
 
     public Flux<String> searchCompanyNames(String companyName, Double min, Double max, int offset, int count){

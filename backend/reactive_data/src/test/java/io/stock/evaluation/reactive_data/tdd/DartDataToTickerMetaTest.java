@@ -75,7 +75,12 @@ public class DartDataToTickerMetaTest {
 
         tickerStockRedisService
                 .saveAllPartialWordTickers(tickerStockFlux)
-                .subscribe(booleanMono -> booleanMono.block());
+                .subscribe(keyPairMono -> keyPairMono.block());
+    }
+
+    @Test
+    public void TEST_SAVE_TICKERS(){
+        saveTickerStocks();
     }
 
     @Test
