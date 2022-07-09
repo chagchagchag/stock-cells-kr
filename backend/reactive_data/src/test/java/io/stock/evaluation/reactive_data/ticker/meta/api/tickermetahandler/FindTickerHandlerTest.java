@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api.tickermetahandler;
 
-import io.stock.evaluation.reactive_data.ticker.meta.application.TickerMetaService;
+import io.stock.evaluation.reactive_data.ticker.meta.application.TickerStockService;
 import io.stock.evaluation.reactive_data.ticker.meta.api.TickerMetaHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,8 +25,8 @@ public class FindTickerHandlerTest {
 //    @Mock(name = "request")
 //    MockServerRequest serverRequest;
 
-    @Mock(name = "tickerMetaService")
-    TickerMetaService tickerMetaService;
+    @Mock(name = "tickerStockService")
+    TickerStockService tickerStockService;
 
     @InjectMocks
     TickerMetaHandler tickerMetaHandler;
