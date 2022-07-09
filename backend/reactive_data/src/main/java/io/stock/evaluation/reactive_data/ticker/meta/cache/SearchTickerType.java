@@ -1,18 +1,18 @@
 package io.stock.evaluation.reactive_data.ticker.meta.cache;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 
 public enum SearchTickerType {
     BY_TICKER("BY_TICKER"){
         @Override
-        public String expectedKey(TickerMetaItem tickerMetaItem) {
-            return tickerMetaItem.getTicker();
+        public String expectedKey(TickerStockDto tickerStockDto) {
+            return tickerStockDto.getTicker();
         }
     },
     BY_COMPANY_NAME("BY_COMPANY_NAME"){
         @Override
-        public String expectedKey(TickerMetaItem tickerMetaItem) {
-            return tickerMetaItem.getCompanyName();
+        public String expectedKey(TickerStockDto tickerStockDto) {
+            return tickerStockDto.getCompanyName();
         }
     };
 
@@ -22,5 +22,5 @@ public enum SearchTickerType {
         this.typeName = typeName;
     }
 
-    public abstract String expectedKey(TickerMetaItem tickerMetaItem);
+    public abstract String expectedKey(TickerStockDto tickerStockDto);
 }
