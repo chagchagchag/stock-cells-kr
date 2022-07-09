@@ -1,44 +1,44 @@
 package io.stock.evaluation.reactive_data.ticker.meta.cache;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 import lombok.Getter;
 
 @Getter
-public class SearchTickerKeyBuilder {
+public class TickerSearchKeyGenerator {
     private final StringBuilder builder = new StringBuilder();
     private final String prefix = TickerCachePrefixType.SEARCH_TICKER.getCachePrefixTypeName();
     private final String SEPARATOR = "###";
 
-    private final TickerMetaItem tickerMetaItem;
+    private final TickerStockDto tickerStockDto;
     private final SearchTickerType searchTickerType;
 
-    public SearchTickerKeyBuilder(
+    public TickerSearchKeyGenerator(
             SearchTickerType searchTickerType
     ){
         this.searchTickerType = searchTickerType;
-        this.tickerMetaItem = null;
+        this.tickerStockDto = null;
     }
 
-    public SearchTickerKeyBuilder(
+    public TickerSearchKeyGenerator(
             SearchTickerType searchTickerType,
-            TickerMetaItem tickerMetaItem
+            TickerStockDto tickerStockDto
     ){
         this.searchTickerType = searchTickerType;
-        this.tickerMetaItem = tickerMetaItem;
+        this.tickerStockDto = tickerStockDto;
     }
 
-    public static SearchTickerKeyBuilder newSearchKeyBuilder(SearchTickerType searchTickerType){
-        return new SearchTickerKeyBuilder(searchTickerType);
+    public static TickerSearchKeyGenerator newGeneratorForSearch(SearchTickerType searchTickerType){
+        return new TickerSearchKeyGenerator(searchTickerType);
     }
 
-    public static SearchTickerKeyBuilder newGenerateKeyBuilder(SearchTickerType searchTickerType, TickerMetaItem tickerMetaItem){
-        return new SearchTickerKeyBuilder(searchTickerType, tickerMetaItem);
+    public static TickerSearchKeyGenerator newGeneratorForGenerate(SearchTickerType searchTickerType, TickerStockDto tickerStockDto){
+        return new TickerSearchKeyGenerator(searchTickerType, tickerStockDto);
     }
 
     public String generateKey(){
         return builder
                 .append(prefix).append(SEPARATOR)
-                .append(searchTickerType.expectedKey(tickerMetaItem)).toString();
+                .append(searchTickerType.expectedKey(tickerStockDto)).toString();
     }
 
     public String searchKey(String query){

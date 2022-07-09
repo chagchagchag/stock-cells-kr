@@ -1,9 +1,9 @@
 package io.stock.evaluation.reactive_data.tdd;
 
 import io.stock.evaluation.reactive_data.ticker.meta.cache.TickerCachePrefixType;
-import io.stock.evaluation.reactive_data.ticker.meta.cache.TickerMetaRedisService;
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
-import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataConverter;
+import io.stock.evaluation.reactive_data.ticker.meta.cache.TickerStockRedisService;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataLoader;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class DartDataToTickerMetaTest {
 
     @Autowired
-    ReactiveRedisOperations<String, TickerMetaItem> tickerMetaMapOps;
+    ReactiveRedisOperations<String, TickerStockDto> tickerMetaMapOps;
 
     @Autowired
     @Qualifier("tickerAutoCompleteRedisOperation")
@@ -29,8 +29,8 @@ public class DartDataToTickerMetaTest {
 
     @Test
     public void TEST_DART_TICKER_PROCESSOR(){
-        DartDataConverter converter = new DartDataConverter();
-        Flux<TickerMetaItem> tickerFlux = converter.processTickers();
+        DartDataLoader converter = new DartDataLoader();
+        Flux<TickerStockDto> tickerFlux = converter.processTickers();
 
         tickerFlux.hasElements()
                 .subscribe(check -> assertThat(check).isTrue());
@@ -38,8 +38,8 @@ public class DartDataToTickerMetaTest {
 
     @Test
     public void TEST_REDIS_PUT_TICKER_LIST(){
-        TickerMetaRedisService tickerMetaRedisService = new TickerMetaRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        tickerMetaRedisService.saveAllCompanyNamesToRedis();
+        TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
+        tickerStockRedisService.saveAllCompanyNamesToRedis();
 
 //        Long count = tickerMetaMapOps.keys("SEARCH-TICKER-*").count().block();
         Long count = tickerMetaMapOps.keys(TickerCachePrefixType.SEARCH_TICKER.getCachePrefixTypeName() + "*").count().block();
@@ -48,8 +48,8 @@ public class DartDataToTickerMetaTest {
 
     @Test
     public void TEST_REDIS_SEARCH_COMPANY_TEST(){
-        TickerMetaRedisService tickerMetaRedisService = new TickerMetaRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        Mono<TickerMetaItem> data = tickerMetaRedisService.searchTickerMetaItem("삼성전자");
+        TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
+        Mono<TickerStockDto> data = tickerStockRedisService.searchTickerMetaItem("삼성전자");
 
         StepVerifier.create(data)
                 .expectNextMatches(tickerMetaItem -> tickerMetaItem.getCompanyName().equals("삼성전자"))
@@ -64,24 +64,54 @@ public class DartDataToTickerMetaTest {
         tickerMetaAutoCompleteOps.opsForZSet().add("TEST-1", "삼성전자", 0).block();
     }
 
-    @Test
-    public void TEST_SAVE_TICKERS_TO_REDIS(){
-        TickerMetaRedisService tickerMetaRedisService = new TickerMetaRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        tickerMetaRedisService.saveAllTickersToRedis();
+    public void saveTickerStocks(){
+        TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
+
+        Flux<TickerStockDto> tickerStockFlux = tickerStockRedisService.tickerMetaItemFlux();
+
+        tickerStockRedisService
+                .saveAllCompleteTickers(tickerStockFlux)
+                .subscribe(keyPairMono -> keyPairMono.block());
+
+        tickerStockRedisService
+                .saveAllPartialWordTickers(tickerStockFlux)
+                .subscribe(booleanMono -> booleanMono.block());
     }
 
     @Test
-    public void TEST_AUTO_COMPLETE_TEST(){
-//        String companyName = "삼";
-        String companyName = "삼성전자";
+    public void TEST_SAVE_TICKERS_AND_SEARCH(){
+//        saveTickerStocks();
+
+        TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
+
+        String companyName = "삼성전";
         Double min = 0D;
         Double max = 5D;
         int offset = 0;
         int count = 30;
 
-        TickerMetaRedisService tickerMetaRedisService = new TickerMetaRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        Flux<String> searchFlux = tickerMetaRedisService.searchCompanyNames(companyName, min, max, offset, count);
-        searchFlux.subscribe(str -> System.out.println(str));
+        tickerStockRedisService.searchCompanyNames(companyName, min, max, offset, count)
+                .subscribe(str -> {
+                    System.out.println(str);
+                });
+//        searchFlux.subscribe(str -> System.out.println(">>>>>" + str));
+    }
+
+    @Test
+    public void TEST_AUTO_COMPLETE_TEST(){
+//        String companyName = "삼";
+//        String companyName = "삼성전자";
+        String companyName = "삼성전";
+        Double min = 0D;
+        Double max = 5D;
+        int offset = 0;
+        int count = 30;
+//
+        TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
+        tickerStockRedisService.searchCompanyNames(companyName, min, max, offset, count)
+                .subscribe(str -> {
+                    System.out.println(str);
+                });
     }
 
 }
