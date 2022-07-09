@@ -1,16 +1,12 @@
 package io.stock.evaluation.reactive_data.crawling.stock.price.application;
 
 import io.stock.evaluation.reactive_data.crawling.stock.price.dto.CrawlingData;
-import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataType;
 import io.stock.evaluation.reactive_data.crawling.types.NaverFinanceParameterType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
 
 @Component
 public class CrawlingValuationService {
