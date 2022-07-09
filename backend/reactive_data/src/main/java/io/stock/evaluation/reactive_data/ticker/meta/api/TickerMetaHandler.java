@@ -1,7 +1,7 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api;
 
-import io.stock.evaluation.reactive_data.ticker.meta.application.TickerMetaService;
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import io.stock.evaluation.reactive_data.ticker.meta.application.TickerStockService;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -17,10 +17,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @Component
 public class TickerMetaHandler {
 
-    private final TickerMetaService tickerMetaService;
+    private final TickerStockService tickerStockService;
 
-    public TickerMetaHandler(TickerMetaService tickerMetaService){
-        this.tickerMetaService = tickerMetaService;
+    public TickerMetaHandler(TickerStockService tickerStockService){
+        this.tickerStockService = tickerStockService;
     }
 
     // 페이징 기반으로 전환하는게 맞지만, 처음 써보는 중이라.....
@@ -44,24 +44,24 @@ public class TickerMetaHandler {
                 .orElse(notFound().build());
     }
 
-    public TickerMetaItem emptyResponseById(String ticker){
+    public TickerStockDto emptyResponseById(String ticker){
         return sampleTickerItem(ticker);
     }
 
-    public TickerMetaItem sampleTickerItem(String ticker){
-        return TickerMetaItem.builder()
+    public TickerStockDto sampleTickerItem(String ticker){
+        return TickerStockDto.builder()
                 .ticker(ticker)
                 .tickerCode("KR"+ticker)
                 .companyName("삼성전자")
                 .build();
     }
 
-    public List<TickerMetaItem> emptyListResponse(){
+    public List<TickerStockDto> emptyListResponse(){
         return List.of(emptyResponse());
     }
 
-    public TickerMetaItem emptyResponse(){
-        return TickerMetaItem.builder()
+    public TickerStockDto emptyResponse(){
+        return TickerStockDto.builder()
                 .ticker("ABC")
                 .tickerCode("KR-ABC")
                 .companyName("삼성전자")

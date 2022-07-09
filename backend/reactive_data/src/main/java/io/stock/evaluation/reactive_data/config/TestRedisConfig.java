@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.config;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,21 +49,21 @@ public class TestRedisConfig {
     }
 
     @Bean
-    public ReactiveRedisOperations<String, TickerMetaItem> tickerMetaMapReactiveRedisOperation(
+    public ReactiveRedisOperations<String, TickerStockDto> tickerMetaMapReactiveRedisOperation(
         ReactiveRedisConnectionFactory redisConnectionFactory
     ){
         StringRedisSerializer keySerializer = new StringRedisSerializer();
-        Jackson2JsonRedisSerializer<TickerMetaItem> valueSerializer = new Jackson2JsonRedisSerializer<TickerMetaItem>(TickerMetaItem.class);
+        Jackson2JsonRedisSerializer<TickerStockDto> valueSerializer = new Jackson2JsonRedisSerializer<TickerStockDto>(TickerStockDto.class);
 
-        RedisSerializationContext<String, TickerMetaItem> serializationContext =
-                RedisSerializationContext.<String, TickerMetaItem>newSerializationContext()
+        RedisSerializationContext<String, TickerStockDto> serializationContext =
+                RedisSerializationContext.<String, TickerStockDto>newSerializationContext()
                         .key(keySerializer)
                         .value(valueSerializer)
                         .hashKey(keySerializer)
                         .hashValue(valueSerializer)
                         .build();
 
-        return new ReactiveRedisTemplate<String, TickerMetaItem>(redisConnectionFactory, serializationContext);
+        return new ReactiveRedisTemplate<String, TickerStockDto>(redisConnectionFactory, serializationContext);
     }
 
     @Bean

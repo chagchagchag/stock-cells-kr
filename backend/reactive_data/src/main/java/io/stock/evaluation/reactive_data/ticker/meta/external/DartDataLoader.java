@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.ticker.meta.external;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerMetaItem;
+import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
@@ -23,11 +23,11 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 @Component
-public class DartDataConverter {
+public class DartDataLoader {
 
     // 다트 제공 xml 파일을 Flux<TickerMetaItem> 으로 변환한다.
     // 추후 Spring Batch 기반의 별도 모듈로 분리 예정
-    public Flux<TickerMetaItem> processTickers() {
+    public Flux<TickerStockDto> processTickers() {
         Optional<Path> tickerXmlPath = getDartTickerListXmlPath();
         if(tickerXmlPath.isEmpty()) return Flux.empty();
 
@@ -70,12 +70,12 @@ public class DartDataConverter {
                 .orElse("");
     };
 
-    Function<Node, TickerMetaItem> newTickerItem = (node) -> {
+    Function<Node, TickerStockDto> newTickerItem = (node) -> {
         NodeList childNodes = node.getChildNodes();
         Node corpCode = childNodes.item(1);
         Node corpName = childNodes.item(3);
         Node stockCode = childNodes.item(5);
-        return new TickerMetaItem(getTextContent.apply(stockCode), getTextContent.apply(corpName), getTextContent.apply(corpCode));
+        return new TickerStockDto(getTextContent.apply(stockCode), getTextContent.apply(corpName), getTextContent.apply(corpCode));
     };
 
     Predicate<Node> isValidNode = node -> {
