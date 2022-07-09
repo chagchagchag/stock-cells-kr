@@ -24,7 +24,6 @@ public class RedisConfig {
 
     @Bean(name = "reactiveRedisConnectionFactory")
     public ReactiveRedisConnectionFactory reactiveRedisConnectionFactory(){
-        // 추후 Embedded Redis 로 전환 예정.
         return new LettuceConnectionFactory(host, port);
     }
 
