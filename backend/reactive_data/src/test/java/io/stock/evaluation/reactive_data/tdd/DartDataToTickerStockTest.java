@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test-docker")
 @SpringBootTest
-public class DartDataToTickerMetaTest {
+public class DartDataToTickerStockTest {
 
     @Autowired
     ReactiveRedisOperations<String, TickerStockDto> tickerMetaMapOps;

@@ -5,15 +5,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.*;
 
 @Configuration
-public class PriceRouter {
+public class PriceApiRouter {
 
     @Bean
-    public RouterFunction<ServerResponse> route(PriceHandler priceHandler){
+    public RouterFunction<ServerResponse> route(PriceApiHandler priceApiHandler){
         return RouterFunctions
                 .route().GET(
                         "/stock/price",
                         RequestPredicates.queryParam("ticker", v -> true),
-                        priceHandler::getPriceBasicValuation
+                        priceApiHandler::getPriceBasicValuation
                 ).build();
 //                .andRoute() // ...
     }

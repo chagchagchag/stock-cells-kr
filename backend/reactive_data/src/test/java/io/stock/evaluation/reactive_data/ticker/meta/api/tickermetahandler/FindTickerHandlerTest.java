@@ -1,7 +1,7 @@
 package io.stock.evaluation.reactive_data.ticker.meta.api.tickermetahandler;
 
 import io.stock.evaluation.reactive_data.ticker.meta.application.TickerStockService;
-import io.stock.evaluation.reactive_data.ticker.meta.api.TickerMetaHandler;
+import io.stock.evaluation.reactive_data.ticker.meta.api.TickerStockApiHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +29,7 @@ public class FindTickerHandlerTest {
     TickerStockService tickerStockService;
 
     @InjectMocks
-    TickerMetaHandler tickerMetaHandler;
+    TickerStockApiHandler tickerStockApiHandler;
 
     @BeforeEach
     public void initLocal(){
@@ -44,7 +44,7 @@ public class FindTickerHandlerTest {
         Mockito.when(mock.queryParam("ticker"))
                 .thenReturn(Optional.of("A005930"));
 
-        Mono<ServerResponse> response = tickerMetaHandler.findTicker(mock);
+        Mono<ServerResponse> response = tickerStockApiHandler.findTicker(mock);
 
         Predicate<ServerResponse> is2xxSuccessful = r -> r.statusCode().is2xxSuccessful();
 
@@ -60,7 +60,7 @@ public class FindTickerHandlerTest {
                 .queryParam("t", "A005930")
                 .build();
 
-        Mono<ServerResponse> response = tickerMetaHandler.findTicker(serverRequest);
+        Mono<ServerResponse> response = tickerStockApiHandler.findTicker(serverRequest);
 
         Predicate<ServerResponse> is4xxClientError = r -> r.statusCode().is4xxClientError();
 

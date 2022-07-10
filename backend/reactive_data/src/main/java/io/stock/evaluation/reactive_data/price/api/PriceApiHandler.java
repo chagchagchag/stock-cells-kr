@@ -12,10 +12,10 @@ import static org.springframework.web.reactive.function.server.ServerResponse.no
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Component
-public class PriceHandler {
+public class PriceApiHandler {
     private final CrawlingValuationService crawlingValuationService;
 
-    public PriceHandler(CrawlingValuationService crawlingValuationService){
+    public PriceApiHandler(CrawlingValuationService crawlingValuationService){
         this.crawlingValuationService = crawlingValuationService;
     }
 

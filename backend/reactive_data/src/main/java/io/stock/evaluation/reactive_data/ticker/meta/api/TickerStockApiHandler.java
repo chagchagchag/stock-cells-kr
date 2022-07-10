@@ -15,11 +15,11 @@ import static org.springframework.web.reactive.function.server.ServerResponse.no
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Component
-public class TickerMetaHandler {
+public class TickerStockApiHandler {
 
     private final TickerStockService tickerStockService;
 
-    public TickerMetaHandler(TickerStockService tickerStockService){
+    public TickerStockApiHandler(TickerStockService tickerStockService){
         this.tickerStockService = tickerStockService;
     }
 

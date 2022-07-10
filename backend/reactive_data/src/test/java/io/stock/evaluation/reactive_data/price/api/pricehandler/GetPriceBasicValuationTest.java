@@ -1,7 +1,7 @@
 package io.stock.evaluation.reactive_data.price.api.pricehandler;
 
 import io.stock.evaluation.reactive_data.crawling.stock.price.application.CrawlingValuationService;
-import io.stock.evaluation.reactive_data.price.api.PriceHandler;
+import io.stock.evaluation.reactive_data.price.api.PriceApiHandler;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class GetPriceBasicValuationTest {
 
     CrawlingValuationService service = new CrawlingValuationService();
-    PriceHandler handler = new PriceHandler(service);
+    PriceApiHandler handler = new PriceApiHandler(service);
 
     @Test
     @DisplayName("티커_파라미터가_정상적으로_전달될경우_200_OK_를_리턴해야_한다")
