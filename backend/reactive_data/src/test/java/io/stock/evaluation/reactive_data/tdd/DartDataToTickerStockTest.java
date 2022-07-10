@@ -15,6 +15,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test-docker")
@@ -119,8 +121,21 @@ public class DartDataToTickerStockTest {
         int count = 30;
 //
         TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        tickerStockRedisService.searchCompanyNames(companyName, min, max, offset, count)
-                .subscribe(stockDto -> System.out.println(stockDto.getCompanyName()));
+        Flux<TickerStockDto> tickerStockFlux = tickerStockRedisService.searchCompanyNames(companyName, min, max, offset, count);
+
+        // TODO 아래 내용 정리 필요
+        // https://stackoverflow.com/questions/57221204/retrieve-all-flux-elements-in-stepverifier
+        StepVerifier.create(tickerStockFlux)
+//                .thenConsumeWhile(tickerStockDto -> true)
+                .thenConsumeWhile(tickerStockDto -> {
+                    if(Optional.ofNullable(tickerStockDto).isEmpty()) return false;
+                    if(tickerStockDto.getTicker().isEmpty()) return false;
+                    if(tickerStockDto.getCompanyName().isEmpty()) return false;
+//                    if(!tickerStockDto.getCompanyName().startsWith(companyName)) return false;
+                    System.out.println(">>> " + tickerStockDto.getCompanyName());
+                    return true;
+                })
+                .verifyComplete();
     }
 
 }
