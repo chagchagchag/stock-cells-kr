@@ -76,7 +76,22 @@ public class TickerStockRedisService {
                 .map(keyPair -> tickerMetaAutoCompleteRedisOps.opsForZSet().add(keyPair.key(), keyPair.value(), 0).map(b -> keyPair));
     }
 
-    public Flux<String> searchCompanyNames(String companyName, Double min, Double max, int offset, int count){
+    /**
+     * 1) <companyName : tickerStockDto>
+     * 2) <ticker : tickerStockDto>
+     */
+    public Flux<Mono<TickerSearchKeyGenerator>> saveAllTickerStock(Flux<TickerStockDto> tickerStockFlux){
+        return tickerStockFlux
+                .flatMap(tickerStockDto ->
+                        Flux.just(
+                                TickerSearchKeyGenerator.newGeneratorForGenerate(SearchTickerType.BY_COMPANY_NAME, tickerStockDto),
+                                TickerSearchKeyGenerator.newGeneratorForGenerate(SearchTickerType.BY_TICKER, tickerStockDto)
+                        )
+                )
+                .map(searchKeyGenerator -> tickerMetaMapOps.opsForValue().set(searchKeyGenerator.generateKey(), searchKeyGenerator.getTickerStockDto()).map(b -> searchKeyGenerator));
+    }
+
+    public Flux<TickerStockDto> searchCompanyNames(String companyName, Double min, Double max, int offset, int count){
         final String keyword = companyName.trim();
         int len = keyword.length();
 
@@ -102,30 +117,13 @@ public class TickerStockRedisService {
                                 final String value = stringTypedTuple.getValue().trim();
                                 int minLen = Math.min(value.length(), keyword.length());
                                 if (pattern.matcher(value).matches() && value.startsWith(keyword.substring(0, minLen))) {
-                                   return true;
+                                    return true;
                                 }
                                 return false;
                             })
                             .map(stringTypedTuple -> stringTypedTuple.getValue().replace("§§§", ""));
-                });
-    }
-
-    /**
-     * 1) <companyName : tickerStockDto>
-     * 2) <ticker : tickerStockDto>
-     */
-    public Flux<TickerSearchKeyGenerator> saveAllCompanyNamesToRedis(){
-        return tickerMetaItemFlux()
-                .flatMap(tickerStockDto ->
-                    Flux.just(
-                            TickerSearchKeyGenerator.newGeneratorForGenerate(SearchTickerType.BY_COMPANY_NAME, tickerStockDto),
-                            TickerSearchKeyGenerator.newGeneratorForGenerate(SearchTickerType.BY_TICKER, tickerStockDto)
-                    )
-                )
-                .map(searchKeyGenerator -> {
-                    tickerMetaMapOps.opsForValue().set(searchKeyGenerator.generateKey(), searchKeyGenerator.getTickerStockDto());
-                    return searchKeyGenerator;
-                });
+                })
+                .flatMap(this::searchTickerMetaItem);
     }
 
     /**

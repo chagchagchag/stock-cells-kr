@@ -4,6 +4,7 @@ import io.stock.evaluation.reactive_data.ticker.meta.cache.TickerCachePrefixType
 import io.stock.evaluation.reactive_data.ticker.meta.cache.TickerStockRedisService;
 import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
 import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataLoader;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,10 +37,11 @@ public class DartDataToTickerStockTest {
                 .subscribe(check -> assertThat(check).isTrue());
     }
 
+    @Disabled
     @Test
     public void TEST_REDIS_PUT_TICKER_LIST(){
         TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
-        tickerStockRedisService.saveAllCompanyNamesToRedis();
+        tickerStockRedisService.saveAllTickerStock(Flux.empty());
 
 //        Long count = tickerMetaMapOps.keys("SEARCH-TICKER-*").count().block();
         Long count = tickerMetaMapOps.keys(TickerCachePrefixType.SEARCH_TICKER.getCachePrefixTypeName() + "*").count().block();
@@ -76,6 +78,10 @@ public class DartDataToTickerStockTest {
         tickerStockRedisService
                 .saveAllPartialWordTickers(tickerStockFlux)
                 .subscribe(keyPairMono -> keyPairMono.block());
+
+        tickerStockRedisService
+                .saveAllTickerStock(tickerStockFlux)
+                .subscribe(generator -> generator.block());
     }
 
     @Test
@@ -114,9 +120,7 @@ public class DartDataToTickerStockTest {
 //
         TickerStockRedisService tickerStockRedisService = new TickerStockRedisService(tickerMetaAutoCompleteOps, tickerMetaMapOps);
         tickerStockRedisService.searchCompanyNames(companyName, min, max, offset, count)
-                .subscribe(str -> {
-                    System.out.println(str);
-                });
+                .subscribe(stockDto -> System.out.println(stockDto.getCompanyName()));
     }
 
 }
