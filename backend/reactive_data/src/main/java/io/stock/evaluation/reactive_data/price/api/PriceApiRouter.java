@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.server.*;
 public class PriceApiRouter {
 
     @Bean
-    public RouterFunction<ServerResponse> route(PriceApiHandler priceApiHandler){
+    public RouterFunction<ServerResponse> stockPriceByTickerRouter(PriceApiHandler priceApiHandler){
         return RouterFunctions
                 .route().GET(
                         "/stock/price",
