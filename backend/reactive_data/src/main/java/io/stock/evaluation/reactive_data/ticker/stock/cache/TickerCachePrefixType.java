@@ -1,4 +1,4 @@
-package io.stock.evaluation.reactive_data.ticker.meta.cache;
+package io.stock.evaluation.reactive_data.ticker.stock.cache;
 
 import lombok.Getter;
 

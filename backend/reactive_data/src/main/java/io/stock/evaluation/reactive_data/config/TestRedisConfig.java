@@ -1,6 +1,6 @@
 package io.stock.evaluation.reactive_data.config;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.TickerStockDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

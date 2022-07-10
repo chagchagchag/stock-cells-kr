@@ -1,6 +1,6 @@
-package io.stock.evaluation.reactive_data.ticker.meta.external;
+package io.stock.evaluation.reactive_data.ticker.stock.external;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.TickerStockDto;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;

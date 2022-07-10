@@ -1,6 +1,6 @@
-package io.stock.evaluation.reactive_data.ticker.meta.cache;
+package io.stock.evaluation.reactive_data.ticker.stock.cache;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.TickerStockDto;
 import lombok.Getter;
 
 @Getter

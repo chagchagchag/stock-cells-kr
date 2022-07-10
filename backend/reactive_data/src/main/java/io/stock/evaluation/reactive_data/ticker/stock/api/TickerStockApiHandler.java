@@ -1,7 +1,7 @@
-package io.stock.evaluation.reactive_data.ticker.meta.api;
+package io.stock.evaluation.reactive_data.ticker.stock.api;
 
-import io.stock.evaluation.reactive_data.ticker.meta.application.TickerStockService;
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.stock.application.TickerStockService;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.TickerStockDto;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;

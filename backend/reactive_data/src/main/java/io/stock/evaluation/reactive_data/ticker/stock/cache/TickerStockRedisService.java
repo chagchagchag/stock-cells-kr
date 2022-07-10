@@ -1,8 +1,8 @@
-package io.stock.evaluation.reactive_data.ticker.meta.cache;
+package io.stock.evaluation.reactive_data.ticker.stock.cache;
 
-import io.stock.evaluation.reactive_data.ticker.meta.dto.KeyPair;
-import io.stock.evaluation.reactive_data.ticker.meta.dto.TickerStockDto;
-import io.stock.evaluation.reactive_data.ticker.meta.external.DartDataLoader;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.KeyPair;
+import io.stock.evaluation.reactive_data.ticker.stock.dto.TickerStockDto;
+import io.stock.evaluation.reactive_data.ticker.stock.external.DartDataLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Range;
 import org.springframework.data.domain.Range.Bound;
