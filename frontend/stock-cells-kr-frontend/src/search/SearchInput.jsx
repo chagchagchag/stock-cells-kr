@@ -1,13 +1,34 @@
 import React, { Component } from 'react';
+import TickerSearchItem from '../commons/TickerSearchItem';
 
 class SearchInput extends Component {
 	state = {
 		text: '',
-		list: []
+		list: [],
+		selected: ''
 	};
 	
 	componentDidMount(){
 		// ..
+	}
+
+	renderTickerSearchItem = (list) => {
+		if(list.length == 0) return [];
+
+		var searchResultEl = [];
+
+		for(var i=0; i<list.length; i++){
+			var tickerItem = list[i];
+
+			searchResultEl.push(
+				<TickerSearchItem
+					key={tickerItem.ticker}
+					ticker={tickerItem.ticker}
+					companyName={tickerItem.companyName}
+				/>
+			)
+		}
+		return searchResultEl;
 	}
 
 	renderSearchResult = (list) => {
@@ -18,8 +39,14 @@ class SearchInput extends Component {
 		for(var i=0; i<list.length; i++){
 			var each = list[i];
 			searchResultEl.push(
-				<div key={each.corpCode} className="card card-body mb-1">
-					<small>회사명 : {each.name} / 종목코드 : {each.corpCode}</small>
+				<div key={each.ticker} value={each.ticker} className="card card-body mb-1" 
+					 onClick={
+						 function(e){
+							//  this.state.companyName = 
+							// console.log("PROPS >>> " + this.props);
+						}.bind(this)}
+				>
+					<small key={each.ticker} ticker={each.ticker} onClick={function(e){console.log(this.props)}.bind(this)}>회사명 : {each.companyName} / 종목코드 : {each.ticker}</small>
 				</div>
 			)
 		}
@@ -39,7 +66,8 @@ class SearchInput extends Component {
 			text: e.target.value
 		});
 
-		fetch('data/dump-stock-list.json')
+		// fetch('data/dump-stock-list.json')
+		fetch('/ticker/stock?companyName='+this.state.text)
 			.then(function(result){
 				return result.json(); 
 			})
@@ -50,15 +78,13 @@ class SearchInput extends Component {
 
 	};
 
-	
-
 	render() {
 		return (
 		<div className="row">
 			<div className="col-md-6 m-auto">
-			<h3 className="text-center mb-3">
+			{/* <h3 className="text-center mb-3">
 				<i className="fa-solid fa-car-tunnel"></i> STOCK CELLS
-			</h3>
+			</h3> */}
 			<input 
 				type="text" 
 				id="search" 
@@ -68,7 +94,8 @@ class SearchInput extends Component {
 			</div>
         	{/* <div id="match-list"></div> */}
 			<div>
-				{this.renderSearchResult(this.state.list)}
+				{this.renderTickerSearchItem(this.state.list)}
+				{/* {this.renderSearchResult(this.state.list)} */}
 			</div>
 		</div>
 		);
