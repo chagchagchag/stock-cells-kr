@@ -1,6 +1,8 @@
 # 4. 순수 Redux 사용하기
 
+> 깃헙과 Notion 의 해상도가 살짝 다르다. Notion 에서는 작게 보여서 보기 편했던 것이 깃헙은 너무 그림이 크게 나와서 한눈에 보기 어렵다. 이 페이지를 볼때만 잠시 75% 로 축소해서 보자.<br>
 
+<br>
 
 # 참고강의
 
@@ -159,25 +161,25 @@ subscribe로 연결해준 후에는 아래와 같이 업데이트가 잘 되는 
 
 <br>
 
-아래는 AddNumber 컴포넌트에서 props 관련 코드를 제거하자.
+AddNumberRoot 파일 내에 선언된 AddNumber 컴포넌트에서 props 관련 코드를 제거하자.
 
 ![1](./img/4-RAW-REDUX/19.png)
 
 <br>
 
-아래는 AddNumber 컴포넌트에서 pops 를 제거한 코드다.
+아래는 AddNumberRoot 파일 내에 선언된 AddNumber 컴포넌트에서 pops 를 제거한 코드다.
 
 ![1](./img/4-RAW-REDUX/20.png)
 
 <br>
 
-DisplayNumber 컴포넌트에서도 props 를 제거해줘야 한다.
+DisplayNumberRoot 파일 내에 선언된 DisplayNumber 컴포넌트에서도 props 를 제거해줘야 한다.
 
 ![1](./img/4-RAW-REDUX/21.png)
 
 <br>
 
-DisplayNumber 컴포넌트에서 props 를 제거해줬다.
+DisplayNumberRoot 파일 내에 선언된 DisplayNubmer컴포넌트에서 props 를 제거해줬다.
 
 ![1](./img/4-RAW-REDUX/22.png)
 
@@ -187,7 +189,7 @@ DisplayNumber 컴포넌트에서 props 를 제거해줬다.
 
 ![1](./img/4-RAW-REDUX/23.png)
 
-
+<br>
 
 
 
