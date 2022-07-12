@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import TickerSearchItem from '../commons/TickerSearchItem';
+import TickerSearchItem from '../../commons/TickerSearchItem'
 
-class SearchInput extends Component {
+class SearchInputComponent extends Component {
 	state = {
 		text: '',
 		list: [],
@@ -25,6 +25,7 @@ class SearchInput extends Component {
 					key={tickerItem.ticker}
 					ticker={tickerItem.ticker}
 					companyName={tickerItem.companyName}
+					// onClick={}
 				/>
 			)
 		}
@@ -102,4 +103,4 @@ class SearchInput extends Component {
 	}
 }
 
-export default SearchInput;
+export default SearchInputComponent;
