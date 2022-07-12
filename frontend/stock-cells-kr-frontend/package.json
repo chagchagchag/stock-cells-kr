@@ -17,6 +17,7 @@
     "@usedapp/core": "^1.0.15",
     "ag-grid-community": "^28.0.0",
     "ag-grid-react": "^28.0.0",
+    "antd": "^4.21.6",
     "cross-env": "^7.0.3",
     "material-table": "^1.69.3",
     "react": "^18.2.0",
