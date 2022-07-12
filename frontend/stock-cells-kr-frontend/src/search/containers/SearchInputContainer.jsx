@@ -1,6 +1,6 @@
 import SearchInputComponent from "../components/SearchInputComponent";
 import { connect } from "react-redux";
-export default connect()(SearchInputComponent);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchInputComponent);
 
 function mapStateToProps(state){
 	return {
@@ -9,5 +9,12 @@ function mapStateToProps(state){
 }
 
 function mapDispatchToProps(dispatch){
-
+	return {
+		onChange: function(companySearchResult){
+			dispatch({
+				type: 'SEARCH/COMPANY_SEARCH_RESULT',
+				companySearchResult : companySearchResult
+			});
+		}
+	}
 }

@@ -90,14 +90,15 @@ class SearchInputComponent extends Component {
 				type="text" 
 				id="search" 
 				className="form-control form-control-lg" 
-				onChange={this.handleInputChange}
+				onChange={function(e){
+					this.handleInputChange(e);
+					this.props.onChange(this.state.companySearchResult);
+				}.bind(this)}
 				placeholder="종목 검색"/>
 			</div>
-        	{/* <div id="match-list"></div> */}
-			<div>
+			{/* <div>
 				{this.renderTickerSearchItem(this.state.list)}
-				{/* {this.renderSearchResult(this.state.list)} */}
-			</div>
+			</div> */}
 		</div>
 		);
 	}
