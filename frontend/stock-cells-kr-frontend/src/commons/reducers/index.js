@@ -5,4 +5,4 @@ import priceData from "./price.reducers";
 export default combineReducers({
 	searchData,
 	priceData
-})
+});

@@ -4,7 +4,7 @@ export default createStore(function(state, action){
 	if(state == undefined){
 		return { selected_ticker: '' };
 	}
-	if(action.type === 'SEARCH/TICKER_CHANGE'){
+	if(action.type === 'SEARCH/SELECTED_TICKER'){
 		return {...state, selected_ticker: state.selected_ticker};
 	}
 	if(action.type === 'SEARCH/COMPANY_SEARCH_RESULT'){
