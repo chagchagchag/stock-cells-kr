@@ -11,6 +11,7 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
 	return {
 		onChange: function(companySearchResult){
+			console.log("SearchInputContainer , result = >>> " + companySearchResult);
 			dispatch({
 				type: 'SEARCH/COMPANY_SEARCH_RESULT',
 				companySearchResult : companySearchResult
