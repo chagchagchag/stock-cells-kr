@@ -1,11 +1,17 @@
 import React, { Component } from 'react';
-import TickerSearchItem from '../../commons/TickerSearchItem'
+import TickerSearchItem from '../../commons/components/TickerSearchItem'
 
 class SearchInputComponent extends Component {
 	state = {
 		text: '',
 		list: [],
-		selected: ''
+		selected: '',
+		// 
+		companySearchResult: [],
+		selected_ticker: '',
+		stockPriceResult: {
+
+		}
 	};
 	
 	componentDidMount(){
@@ -58,7 +64,8 @@ class SearchInputComponent extends Component {
 		if(e.target.value === ''){
 			this.setState({
 				text: '종목명 입력',
-				list: []
+				list: [],
+				companySearchResult: []
 			});
 			return;
 		}
@@ -74,7 +81,8 @@ class SearchInputComponent extends Component {
 			})
 			.then(function(json){
 				console.log(json);
-				this.setState({list:json});
+				// this.setState({list:json});
+				this.setState({companySearchResult: json})
 			}.bind(this));
 
 	};

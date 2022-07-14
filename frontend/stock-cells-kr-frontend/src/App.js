@@ -2,6 +2,7 @@
 // import './theme/flatly-bootstrap.min.css';
 // import './theme/darkly-bootstrap.min.css';
 import SearchCompanyInput from './search/components/SearchCompanyInput';
+import TickerList from './search/components/TickerList';
 import './theme/litera-bootstrap.min.css';
 // import './theme/styles.css';
 //-- react-bootstrap-table2
@@ -26,6 +27,7 @@ function App() {
       <BuyingPlanCell style={{width: '100%', height: '100%'}}></BuyingPlanCell> */}
 
       <SearchCompanyInput></SearchCompanyInput>
+      <TickerList></TickerList>
 
     </div>
   );

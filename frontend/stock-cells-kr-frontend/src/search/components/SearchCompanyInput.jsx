@@ -12,19 +12,20 @@ const SearchCompanyInput = ({dispatch}) => {
 	// var setSearchResult = searchResultProps[1];
 
 	var handleChange = (e) => {
-		if(e.target.value === ''){
+		if(e.target.value.trim() === ''){
 			setSearchText('종목명 입력');
 			return;
 		}
+		if(e.target.value.length === 0) return;
 
-		setSearchText(e.target.value);
+		setSearchText(e.target.value.trim());
 
 		fetch('/ticker/stock?companyName='+searchText)
 			.then(function(result){
 				return result.json(); 
 			})
 			.then(function(json){
-				console.log(json);
+				console.log("검색어 : ", searchText, " 서버응답 : ", json);
 				dispatch(searchCompany(json));
 				// setSearchResult({searchResult: json});
 			}.bind(this));
@@ -37,7 +38,7 @@ const SearchCompanyInput = ({dispatch}) => {
 					type="text" 
 					id="search"
 					className="form-cotrol form-control-lg"
-					onChange={function(e){
+					onKeyPress={function(e){
 						handleChange(e);
 					}.bind(this)}/>
 			</div>
