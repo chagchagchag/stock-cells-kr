@@ -1,6 +1,7 @@
 // -- (start) bootstrap 
 // import './theme/flatly-bootstrap.min.css';
 // import './theme/darkly-bootstrap.min.css';
+import SearchCompanyInput from './search/components/SearchCompanyInput';
 import './theme/litera-bootstrap.min.css';
 // import './theme/styles.css';
 //-- react-bootstrap-table2
@@ -10,14 +11,22 @@ import './theme/litera-bootstrap.min.css';
 
 // -- (start) component, containers
 // import SearchInputComponent from './search/components/SearchInputComponent';
-import SearchInputContainer from './search/containers/SearchInputContainer';
-import BuyingPlanCell from './planner/buy/BuyingPlanCell';
+
+// -- (구버전 ^^;;;)
+// import SearchInputContainer from './search/containers/SearchInputContainer';
+// import BuyingPlanCell from './planner/buy/BuyingPlanCell';
+// import TickerSearchItemContainer from './search/containers/TickerSearchItemContainer';
 
 function App() {
   return (
     <div className='container mt-5'>
-      <SearchInputContainer></SearchInputContainer>
-      <BuyingPlanCell style={{width: '100%', height: '100%'}}></BuyingPlanCell>
+      {/* 구버전 ^^;; */}
+      {/* <SearchInputContainer></SearchInputContainer>
+      <TickerSearchItemContainer></TickerSearchItemContainer>
+      <BuyingPlanCell style={{width: '100%', height: '100%'}}></BuyingPlanCell> */}
+
+      <SearchCompanyInput></SearchCompanyInput>
+
     </div>
   );
 }
