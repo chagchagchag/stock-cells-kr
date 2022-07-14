@@ -5,7 +5,7 @@ const searchData = (state = [], action) =>{
 				...state,
 				{
 					id: action.id,
-					result: action.result
+					searchResult: action.result
 				}
 			];
 
