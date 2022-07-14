@@ -5,8 +5,11 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'antd/dist/antd.css';
 
-import { Provider } from 'react-redux';   // react-redux
-import store from './redux/store';
+import { Provider } from 'react-redux';         // react-redux
+import { createStore } from 'redux';            // redux
+import rootReducer from './commons/reducers';   // commons/reducers
+
+const store = createStore(rootReducer);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
