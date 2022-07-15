@@ -2,9 +2,11 @@ package io.stock.evaluation.reactive_data.crawling.price;
 
 import io.stock.evaluation.reactive_data.crawling.stock.price.application.CrawlingValuationService;
 import io.stock.evaluation.reactive_data.crawling.stock.price.dto.CrawlingData;
+import io.stock.evaluation.reactive_data.crawling.stock.price.dto.Parameter;
 import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataType;
 import io.stock.evaluation.reactive_data.crawling.types.NaverFinanceParameterType;
 import lombok.Getter;
+import org.jsoup.select.Elements;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
@@ -12,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -113,6 +116,90 @@ public class NaverFinanceCrawlingTest {
 
         CrawlingData data = builder.build();
         System.out.println(data);
+    }
+
+    @Test
+    public void 현재가_파싱_테스트_1(){
+        final String ticker = "005930";
+        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
+
+        Mono<String> data = service.getDocument(targetUrl)
+                .map(document -> {
+                    return document.select("p.no_today .no_up span:not(.shim)").eachText().get(0);
+                })
+                .map(list -> {
+                    System.out.println(" text >> " + list);
+                    return list;
+                });
+
+        data.subscribe(dat -> System.out.println(dat));
+    }
+
+    @Test
+    public void 현재가_파싱_테스트_2(){
+        Function<Elements, Parameter> priceParser = (elements) -> {
+            String type = "price";
+            String value = elements.eachText().get(0);
+            return new Parameter(type, value);
+        };
+
+        final String ticker = "005930";
+        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
+
+        Mono<Parameter> data = service.getDocument(targetUrl)
+                .map(document -> {
+                    return document.select("p.no_today .no_up span:not(.shim)");
+                })
+                .map(elements -> {
+                    return priceParser.apply(elements);
+                })
+                .map(parameter -> {
+                    System.out.println(" text >> " + parameter);
+                    return parameter;
+                });
+
+        data.subscribe(dat -> System.out.println(dat));
+    }
+
+    @Test
+    public void TEST_TEST(){
+        Function<Elements, Parameter> idBasedParser = (elements) -> {
+            String type = elements.attr("id").substring(1);
+            String value = elements.text();
+            return new Parameter(type, value);
+        };
+
+        Function<Elements, Parameter> priceParser = (elements) -> {
+            String type = "price";
+            String value = elements.eachText().get(0);
+            return new Parameter(type, value);
+        };
+
+        final String ticker = "005930";
+        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
+        final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
+
+
+        Mono<CrawlingData> result = service.getDocument(targetUrl)
+                .flatMapMany(document ->
+                        Flux.just(
+                                idBasedParser.apply(document.select("em[id='_per']")),
+                                idBasedParser.apply(document.select("em[id='_eps']")),
+                                idBasedParser.apply(document.select("em[id='_pbr']")),
+                                idBasedParser.apply(document.select("em[id='_dvr']")),
+                                idBasedParser.apply(document.select("em[id='_market_sum']")),
+                                priceParser.apply(document.select("p.no_today .no_up span:not(.shim)"))
+                        )
+                )
+                .map(parameter -> {
+                    dataBuilder.bindParameter(parameter.getType(), parameter.getValue());
+                    return dataBuilder;
+                })
+                .last()
+                .map(builder -> builder.build());
+
+
+        result.subscribe(d -> System.out.println(d));
     }
 
 }
