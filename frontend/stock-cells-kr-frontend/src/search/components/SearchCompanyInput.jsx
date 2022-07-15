@@ -12,12 +12,12 @@ const SearchCompanyInput = ({dispatch}) => {
 	// var searchResult = searchResultProps[0];
 	// var setSearchResult = searchResultProps[1];
 
-	useEffect(()=>{
-		console.log("(useEffect) searchText >>> ", searchText);
-		if(searchText){
-			fetchSearchTickerAPI(searchText)
-		}
-	});
+	// useEffect(()=>{
+	// 	console.log("(useEffect) searchText >>> ", searchText);
+	// 	if(searchText){
+	// 		fetchSearchTickerAPI(searchText)
+	// 	}
+	// });
 
 	let fetchSearchTickerAPI = (text) => {
 		var disassemble = Hangul.disassemble(text);
@@ -43,13 +43,16 @@ const SearchCompanyInput = ({dispatch}) => {
 	};
 
 	let handleChange = (e) => {
+		if (e.isComposing || e.keyCode === 229) {
+			return;
+		  }
 		if(e.target.value.trim() === ''){
 			setSearchText('종목명 입력');
 			return;
 		}
 		if(e.target.value.length === 0) return;
 
-		setSearchText(e.target.value.trim());
+		setSearchText(e.target.value.trim() + ' ');
 		fetchSearchTickerAPI(searchText);
 	}
 
@@ -59,8 +62,10 @@ const SearchCompanyInput = ({dispatch}) => {
 				<input 
 					type="text" 
 					id="search"
+					// value={searchText}
+					// style={{'wordWrap': 'break-word'}}
 					className="form-cotrol form-control-lg"
-					onInput={function(e){
+					onKeyDown={function(e){
 						handleChange(e);
 					}.bind(this)}/>
 			</div>
