@@ -7,8 +7,8 @@ function TickerSearchListItem(props) {
 	// type = "SEARCH/COMPANY_SEARCH_RESULT"
 
 	var renderTickerSearchItem = (list) => {
-		console.log("props.companyResult = ", props.companySearchResult);
-		console.log(">>>>>>>>>> ", list);
+		// console.log("props.companyResult = ", props.companySearchResult);
+		// console.log(">>>>>>>>>> ", list);
 		if(list.length == 0) return [];
 
 		var componentList = [];

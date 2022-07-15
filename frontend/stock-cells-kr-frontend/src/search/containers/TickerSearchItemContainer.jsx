@@ -12,7 +12,7 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
 	return {
 		onClick: function(ticker){
-			console.log('dispatch >>> ', "{ type = SEARCH/SELECTED_TICKER , ", 'selected_ticker = ' + ticker);
+			// console.log('dispatch >>> ', "{ type = SEARCH/SELECTED_TICKER , ", 'selected_ticker = ' + ticker);
 			dispatch({
 				type: 'SEARCH/SELECTED_TICKER',
 				selected_ticker: ticker

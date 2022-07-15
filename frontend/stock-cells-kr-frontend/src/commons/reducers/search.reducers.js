@@ -1,7 +1,7 @@
 const searchData = (state = [], action) =>{
 	switch(action.type){
 		case "SEARCH/SEARCH_COMPANY":
-			console.log("reducer (search_company) >>> ", action.searchResult);
+			// console.log("reducer (search_company) >>> ", action.searchResult);
 			// if(state.searchResult != null || state.searchResult != undefined){
 			// 	state.searchResult = [];
 			// }

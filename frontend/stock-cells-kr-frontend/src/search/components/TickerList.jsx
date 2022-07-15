@@ -27,7 +27,7 @@ const TickerList = ({searchData, selectTicker}) => {
 // 종목명 검색 API 응답결과를 SUBSCRIBE
 // redux의 state 를 props 로 바인딩한다.
 const mapStateToProps = (state) => {
-	console.log("state >> ", state);
+	// console.log("state >> ", state);
 	return {
 		// (NOT)
 		// action 에서 전달받는 searchResult을

@@ -1,7 +1,7 @@
 let nextSearchId = 0;
 
 export const searchCompany = (list) => {
-	console.log("search.action.js ('SEARCH/SEARCH_COMPANY') >>> list = ", list);
+	// console.log("search.action.js ('SEARCH/SEARCH_COMPANY') >>> list = ", list);
 	return {
 		type: "SEARCH/SEARCH_COMPANY",
 		id: nextSearchId++,
