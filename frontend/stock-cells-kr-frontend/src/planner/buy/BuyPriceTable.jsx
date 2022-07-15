@@ -9,9 +9,12 @@ const BuyPriceTable = () => {
 	const containerStyle = useMemo(() => ({ width: '100%', height: '100%' }), []);
 	const gridStyle = useMemo(() => ({ height: '100%', width: '100%' }), []);
 	const [rowData, setRowData] = useState([
-	  { make: 'Toyota', model: 'Celica', price: 35000 },
-	  { make: 'Ford', model: 'Mondeo', price: 32000 },
-	  { make: 'Porsche', model: 'Boxster', price: 72000 },
+		{company: '삼성전자', price: 53400, changedPrice: 53400, priceRatio: 100, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+		{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 99, changedPer: 4, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+		{company: '삼성전자', price: 53400, changedPrice: 53200, priceRatio: 98, changedPer: 3, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+		{company: '삼성전자', price: 53400, changedPrice: 53100, priceRatio: 97, changedPer: 2, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+		{company: '삼성전자', price: 53400, changedPrice: 53000, priceRatio: 96, changedPer: 1, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+		{company: '삼성전자', price: 53400, changedPrice: 52900, priceRatio: 95, changedPer: 0, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
 	]);
 
 	const defaultColDef = useMemo(() => {
@@ -28,9 +31,22 @@ const BuyPriceTable = () => {
 	}, []);
 
 	const [columnDefs, setColumnDefs] = useState([
-	  { field: 'make' },
-	  { field: 'model' },
-	  { field: 'price' },
+		{
+			headerName: '',
+			children:[
+				{headerName: '회사명', field: 'company', minWidth: 50, resizable: true},
+				{headerName: '조회 가격 (2022/07/08)', minWidth: 120, field: 'price', resizable: true},
+				{headerName: '등락율(+/-)', field: 'priceRatio', resizable: true},
+				{headerName: '적용 가격', field: 'changedPrice', resizable: true},
+				{headerName: '적용 PER', field: 'changedPer', resizable: true},
+			]
+		},
+		{
+			headerName: '실적, 분기 데이터',
+			children:[
+				{headerName: 'EPS', field: 'eps', resizable: true}
+			]
+		}
 	]);
   
 	const onBtnExport = useCallback(() => {
@@ -47,7 +63,7 @@ const BuyPriceTable = () => {
 		<div style={containerStyle}>
 			<div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
 			<div style={{ margin: '10px 0' }}>
-				<button onClick={onBtnUpdate}>Show CSV export content text</button>
+				{/* <button onClick={onBtnUpdate}>Show CSV export content text</button> */}
 				<button onClick={onBtnExport}>Download CSV export file</button>
 			</div>
 			<div style={{ flex: '1 1 0', position: 'relative' }}>
@@ -55,12 +71,12 @@ const BuyPriceTable = () => {
 				<div id="gridContainer" style={{height: '500px', width: '100%'}}>
 				<div style={gridStyle} className="ag-theme-alpine">
 					<AgGridReact
-					ref={gridRef}
-					rowData={rowData}
-					defaultColDef={defaultColDef}
-					suppressExcelExport={true}
-					popupParent={popupParent}
-					columnDefs={columnDefs}
+						ref={gridRef}
+						rowData={rowData}
+						defaultColDef={defaultColDef}
+						suppressExcelExport={true}
+						popupParent={popupParent}
+						columnDefs={columnDefs}
 					></AgGridReact>
 				</div>
 				</div>
