@@ -162,43 +162,9 @@ public class NaverFinanceCrawlingTest {
     }
 
     @Test
-    public void TEST_TEST(){
-        Function<Elements, Parameter> idBasedParser = (elements) -> {
-            String type = elements.attr("id").substring(1);
-            String value = elements.text();
-            return new Parameter(type, value);
-        };
-
-        Function<Elements, Parameter> priceParser = (elements) -> {
-            String type = "price";
-            String value = elements.eachText().get(0);
-            return new Parameter(type, value);
-        };
-
+    public void getPriceBasicValuationData_테스트(){
         final String ticker = "005930";
-        String targetUrl = NaverFinanceParameterType.TICKER_SEARCH.stockSearchUrl(ticker);
-        final CrawlingData.CrawlingDataBuilder dataBuilder = new CrawlingData.CrawlingDataBuilder();
-
-
-        Mono<CrawlingData> result = service.getDocument(targetUrl)
-                .flatMapMany(document ->
-                        Flux.just(
-                                idBasedParser.apply(document.select("em[id='_per']")),
-                                idBasedParser.apply(document.select("em[id='_eps']")),
-                                idBasedParser.apply(document.select("em[id='_pbr']")),
-                                idBasedParser.apply(document.select("em[id='_dvr']")),
-                                idBasedParser.apply(document.select("em[id='_market_sum']")),
-                                priceParser.apply(document.select("p.no_today .no_up span:not(.shim)"))
-                        )
-                )
-                .map(parameter -> {
-                    dataBuilder.bindParameter(parameter.getType(), parameter.getValue());
-                    return dataBuilder;
-                })
-                .last()
-                .map(builder -> builder.build());
-
-
+        Mono<CrawlingData> result = service.getPriceBasicValuationData(ticker);
         result.subscribe(d -> System.out.println(d));
     }
 

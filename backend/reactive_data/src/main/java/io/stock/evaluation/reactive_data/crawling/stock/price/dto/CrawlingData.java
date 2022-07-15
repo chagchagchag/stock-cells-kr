@@ -4,14 +4,17 @@ import io.stock.evaluation.reactive_data.crawling.stock.price.type.CrawlingDataT
 import lombok.Getter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
+
 @Getter
 @ToString
 public class CrawlingData {
-    private final String per;
-    private final String pbr;
-    private final String eps;
+    private final BigDecimal per;
+    private final BigDecimal pbr;
+    private final BigDecimal eps;
     private final String marketSum;
-    private final String dvr;
+    private final BigDecimal dvr;
+    private final BigDecimal price;
 
     public CrawlingData(CrawlingDataBuilder builder){
         this.per = builder.per;
@@ -19,14 +22,16 @@ public class CrawlingData {
         this.eps = builder.eps;
         this.marketSum = builder.marketSum;
         this.dvr = builder.dvr;
+        this.price = builder.price;
     }
 
     public static class CrawlingDataBuilder{
-        private String per;
-        private String pbr;
-        private String eps;
+        private BigDecimal per;
+        private BigDecimal pbr;
+        private BigDecimal eps;
         private String marketSum;
-        private String dvr;
+        private BigDecimal dvr;
+        private BigDecimal price;
 
         public CrawlingDataBuilder(){}
 
@@ -39,17 +44,17 @@ public class CrawlingData {
             return this;
         }
 
-        public CrawlingDataBuilder per(String per){
+        public CrawlingDataBuilder per(BigDecimal per){
             this.per = per;
             return this;
         }
 
-        public CrawlingDataBuilder pbr(String pbr){
+        public CrawlingDataBuilder pbr(BigDecimal pbr){
             this.pbr = pbr;
             return this;
         }
 
-        public CrawlingDataBuilder eps(String eps){
+        public CrawlingDataBuilder eps(BigDecimal eps){
             this.eps = eps;
             return this;
         }
@@ -59,8 +64,13 @@ public class CrawlingData {
             return this;
         }
 
-        public CrawlingDataBuilder dvr(String dvr){
+        public CrawlingDataBuilder dvr(BigDecimal dvr){
             this.dvr = dvr;
+            return this;
+        }
+
+        public CrawlingDataBuilder price(BigDecimal price){
+            this.price = price;
             return this;
         }
 

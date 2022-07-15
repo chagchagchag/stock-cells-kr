@@ -1,35 +1,44 @@
 package io.stock.evaluation.reactive_data.crawling.stock.price.type;
 
 import io.stock.evaluation.reactive_data.crawling.stock.price.dto.CrawlingData;
+import io.stock.evaluation.reactive_data.global.common.StringParser;
 import lombok.Getter;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Getter
 public enum CrawlingDataType {
     PER("per"){
         @Override
         public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-            builder.per(value);
+            builder.per(toBigDecimal(StringParser.toDecimal().apply(value)));
         }
     },
     EPS("eps"){
         @Override
         public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-            builder.eps(value);
+            builder.eps(toBigDecimal(StringParser.toDecimal().apply(value)));
         }
     },
     PBR("pbr"){
         @Override
         public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-            builder.pbr(value);
+            builder.pbr(toBigDecimal(StringParser.toDecimal().apply(value)));
         }
     },
     DVR("dvr"){
         @Override
         public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
-            builder.dvr(value);
+            builder.dvr(toBigDecimal(StringParser.toDecimal().apply(value)));
+        }
+    },
+    PRICE("price"){
+        @Override
+        public void bindParameter(CrawlingData.CrawlingDataBuilder builder, String value) {
+            builder.price(toBigDecimal(StringParser.toDecimal().apply(value)));
         }
     },
     MARKET_SUM("market_sum"){
@@ -38,6 +47,11 @@ public enum CrawlingDataType {
             builder.marketSum(value);
         }
     };
+
+    public BigDecimal toBigDecimal(Optional<BigDecimal> value){
+        if(value.isEmpty()) return BigDecimal.ZERO;
+        return value.get();
+    }
 
     private final String dataName;
 
