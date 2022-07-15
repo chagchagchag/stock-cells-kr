@@ -13,7 +13,9 @@ const TickerList = ({searchData, selectTicker}) => {
 				(data) => (
 					<TickerItem key={data.ticker} 
 								{...data} 
-								onClick={() => selectTicker(data.ticker, data.companyName)}
+								onClick={() => {
+									selectTicker(data.ticker, data.companyName);
+								}}
 					/>
 				)	
 			)
