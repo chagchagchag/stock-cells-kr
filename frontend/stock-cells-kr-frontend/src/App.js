@@ -1,6 +1,7 @@
 // -- (start) bootstrap 
 // import './theme/flatly-bootstrap.min.css';
 // import './theme/darkly-bootstrap.min.css';
+import BuyPriceTable from './planner/buy/BuyPriceTable';
 import SearchCompanyInput from './search/components/SearchCompanyInput';
 import TickerList from './search/components/TickerList';
 import './theme/litera-bootstrap.min.css';
@@ -28,6 +29,7 @@ function App() {
 
       <SearchCompanyInput></SearchCompanyInput>
       <TickerList></TickerList>
+      <BuyPriceTable></BuyPriceTable>
 
     </div>
   );
