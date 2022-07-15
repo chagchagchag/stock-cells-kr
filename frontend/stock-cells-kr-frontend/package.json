@@ -19,6 +19,7 @@
     "ag-grid-react": "^28.0.0",
     "antd": "^4.21.6",
     "cross-env": "^7.0.3",
+    "hangul-js": "^0.2.6",
     "material-table": "^1.69.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
