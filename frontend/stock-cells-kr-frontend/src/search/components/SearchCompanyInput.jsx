@@ -45,14 +45,21 @@ const SearchCompanyInput = ({dispatch}) => {
 	let handleChange = (e) => {
 		if (e.isComposing || e.keyCode === 229) {
 			return;
-		  }
+		}
 		if(e.target.value.trim() === ''){
 			setSearchText('종목명 입력');
 			return;
 		}
 		if(e.target.value.length === 0) return;
 
-		setSearchText(e.target.value.trim() + ' ');
+		var disassemble = Hangul.disassemble(e.target.value + ' ');
+		if(disassemble == null || disassemble == undefined) return;
+		if(disassemble === '' || disassemble === ' ') return;
+		if(disassemble.length === 0) return;
+
+		var keyword = Hangul.assemble(disassemble);
+
+		setSearchText(keyword.trim());
 		fetchSearchTickerAPI(searchText);
 	}
 
@@ -63,11 +70,28 @@ const SearchCompanyInput = ({dispatch}) => {
 					type="text" 
 					id="search"
 					// value={searchText}
-					// style={{'wordWrap': 'break-word'}}
+					style={{'wordWrap': 'break-word', 'imeMode': 'active'}}
 					className="form-cotrol form-control-lg"
+					// https://rrecoder.tistory.com/231
 					onKeyDown={function(e){
+						if (e.isComposing || e.keyCode === 229) {
+							return;
+						}
 						handleChange(e);
-					}.bind(this)}/>
+					}.bind(this)}
+					onInput={function(e){
+						if (e.isComposing || e.keyCode === 229) {
+							return;
+						}
+						handleChange(e);
+					}.bind(this)}
+					onChange={function(e){
+						if (e.isComposing || e.keyCode === 229) {
+							return;
+						}
+						handleChange(e);
+					}.bind(this)}
+					/>
 			</div>
 		</div>
 	  );
