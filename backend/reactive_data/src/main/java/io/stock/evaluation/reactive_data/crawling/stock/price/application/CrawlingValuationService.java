@@ -48,7 +48,7 @@ public class CrawlingValuationService {
                                 idBasedParser.apply(document.select("em[id='_pbr']")),
                                 idBasedParser.apply(document.select("em[id='_dvr']")),
                                 idBasedParser.apply(document.select("em[id='_market_sum']")),
-                                priceParser.apply(document.select("p.no_today .no_up span:not(.shim)"))
+                                priceParser.apply(document.select("p.no_today span:not(.shim)"))
                         )
                 )
                 .map(parameter -> {
