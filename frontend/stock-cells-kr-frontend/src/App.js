@@ -8,18 +8,20 @@ import './theme/litera-bootstrap.min.css';
 // 참고) https://react-bootstrap.github.io/getting-started/introduction/#css 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import BuyPriceTable from './planner/buy/BuyPriceTable';
-import SearchCompanyInput from './search/components/SearchCompanyInput';
-import TickerList from './search/components/TickerList';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import BuyPriceTablePage from './planner/buy/page/BuyPriceTablePage';
+import NavBarElement from './commons/navbar/NavBarElement';
+import Intro from './intro/Intro';
 
 function App() {
   return (
-    <div className='container mt-5'>
-      <SearchCompanyInput></SearchCompanyInput>
-      <TickerList></TickerList>
-      <BuyPriceTable></BuyPriceTable>
-
-    </div>
+    <Router>
+      <NavBarElement/>
+      <Routes>
+        <Route path="/" element={<Intro/>}/>
+        <Route path="/buy-price-table" element={<BuyPriceTablePage/>}/>
+      </Routes>
+    </Router>
   );
 }
 
