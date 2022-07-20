@@ -26,7 +26,7 @@ class BuyPlannerCell extends Component {
 			// ],
 			columnDefs:[
 				{
-					headerName: '가격리스트',
+					headerName: '',
 					children:[
 						{headerName: '회사명', field: 'company', minWidth: 50, resizable: true},
 						{headerName: '조회 가격 (2022/07/08)', minWidth: 120, field: 'price', resizable: true},
@@ -38,20 +38,18 @@ class BuyPlannerCell extends Component {
 				{
 					headerName: '실적, 분기 데이터',
 					children:[
-						{headerName: 'PER', field: 'per', resizable: true},
-						{headerName: 'PES', field: 'eps', resizable: true},
-						{headerName: '당좌비율', field: 'cash'},
-						{headerName: '유보율', field: 'cashcash'} // 유보율 ...
+						{headerName: 'EPS', field: 'eps', resizable: true}
 					]
 				}
 			],
 			// 샘플 데이터... 기다려라... 데이터 연동 (백엔드 작업 & DB 작업) 이제 시작한다!!!
 			rowData: [
-				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 99, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
-				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 98, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
-				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 97, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
-				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 96, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
-				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 95, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 53400, priceRatio: 100, changedPer: 5, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 53300, priceRatio: 99, changedPer: 4, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 53200, priceRatio: 98, changedPer: 3, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 53100, priceRatio: 97, changedPer: 2, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 53000, priceRatio: 96, changedPer: 1, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
+				{company: '삼성전자', price: 53400, changedPrice: 52900, priceRatio: 95, changedPer: 0, per: 6, eps: 55555, cash: 11111, cashcash: 11111},
 				// {price: 35000, changedRatio: 90, changedPrice: 35000*0.9, changedPer: 111}
 			],
 		};
