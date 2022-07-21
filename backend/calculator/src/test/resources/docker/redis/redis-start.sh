@@ -1,1 +1,0 @@
-docker container run --rm -d -p 6379:6379 --name redis-test -d redis:latest

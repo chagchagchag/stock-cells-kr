@@ -1,1 +1,0 @@
-docker container stop redis-test
