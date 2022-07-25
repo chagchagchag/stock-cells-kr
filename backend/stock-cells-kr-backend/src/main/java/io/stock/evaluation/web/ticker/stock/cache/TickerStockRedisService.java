@@ -80,7 +80,7 @@ public class TickerStockRedisService {
      * 1) <companyName : tickerStockDto>
      * 2) <ticker : tickerStockDto>
      */
-    public Flux<Mono<TickerSearchKeyGenerator>> saveAllTickerStock(Flux<TickerStockDto> tickerStockFlux){
+    public Flux<Mono<KeyPair>> saveAllTickerStock(Flux<TickerStockDto> tickerStockFlux){
         return tickerStockFlux
                 .flatMap(tickerStockDto ->
                         Flux.just(
@@ -88,7 +88,12 @@ public class TickerStockRedisService {
                                 TickerSearchKeyGenerator.newGeneratorForGenerate(SearchTickerType.BY_TICKER, tickerStockDto)
                         )
                 )
-                .map(searchKeyGenerator -> tickerMetaMapOps.opsForValue().set(searchKeyGenerator.generateKey(), searchKeyGenerator.getTickerStockDto()).map(b -> searchKeyGenerator));
+                .map(searchKeyGenerator -> tickerMetaMapOps.opsForValue()
+                        .set(searchKeyGenerator.generateKey(), searchKeyGenerator.getTickerStockDto())
+                        .map(b ->
+//                            TickerStockDto tickerStock = searchKeyGenerator.getTickerStockDto();
+                            keyPairFunc.apply(searchKeyGenerator.getTickerStockDto())
+                        ));
     }
 
     public Flux<TickerStockDto> searchCompanyNames(String companyName, Double min, Double max, int offset, int count){

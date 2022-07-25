@@ -1,10 +1,13 @@
 package io.stock.evaluation.web.tdd;
 
 import io.stock.evaluation.web.ticker.stock.cache.TickerCachePrefixType;
+import io.stock.evaluation.web.ticker.stock.cache.TickerSearchKeyGenerator;
 import io.stock.evaluation.web.ticker.stock.cache.TickerStockRedisService;
+import io.stock.evaluation.web.ticker.stock.dto.KeyPair;
 import io.stock.evaluation.web.ticker.stock.dto.TickerStockDto;
 import io.stock.evaluation.web.ticker.stock.external.DartDataLoader;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -83,7 +86,7 @@ public class DartDataToTickerStockTest {
 
         tickerStockRedisService
                 .saveAllTickerStock(tickerStockFlux)
-                .subscribe(generator -> generator.block());
+                .subscribe(keyPairMono -> keyPairMono.block());
     }
 
     @Test
