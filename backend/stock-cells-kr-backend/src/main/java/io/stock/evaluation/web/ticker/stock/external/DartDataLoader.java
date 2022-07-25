@@ -18,9 +18,13 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Component
 public class DartDataLoader {
@@ -89,5 +93,22 @@ public class DartDataLoader {
         }
         return false;
     };
+
+    // 종목 추천의 경우, 미리 생성된 종목명에 대한 형태소들을 넣어주어야 하기때문에, 비동기가 아닌 동기방식으로.
+    public List<TickerStockDto> processTickersBlock(){
+        Optional<Path> tickerXmlPath = getDartTickerListXmlPath();
+        if(tickerXmlPath.isEmpty()) return new ArrayList<>();
+
+        return parseNodeList(tickerXmlPath.get())
+                .map(list -> {
+                    return IntStream.range(0, list.getLength())
+                            .boxed()
+                            .map(list::item)
+                            .filter(node -> isValidNode.test(node))
+                            .map(node -> newTickerItem.apply(node))
+                            .collect(Collectors.toList());
+                })
+                .orElse(new ArrayList<>());
+    }
 
 }

@@ -1,23 +1,23 @@
 package io.stock.evaluation.web.tdd;
 
 import io.stock.evaluation.web.ticker.stock.cache.TickerCachePrefixType;
-import io.stock.evaluation.web.ticker.stock.cache.TickerSearchKeyGenerator;
+import io.stock.evaluation.web.ticker.stock.cache.TickerStockBlockRedisService;
 import io.stock.evaluation.web.ticker.stock.cache.TickerStockRedisService;
-import io.stock.evaluation.web.ticker.stock.dto.KeyPair;
 import io.stock.evaluation.web.ticker.stock.dto.TickerStockDto;
 import io.stock.evaluation.web.ticker.stock.external.DartDataLoader;
 import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,6 +32,15 @@ public class DartDataToTickerStockTest {
     @Autowired
     @Qualifier("tickerAutoCompleteRedisOperation")
     ReactiveRedisOperations<String, String> tickerMetaAutoCompleteOps;
+
+    @Autowired
+    @Qualifier("tickerMetaMapBlockTemplate")
+    RedisTemplate<String, TickerStockDto> tickerMetaMapBlockTemplate;
+
+
+    @Autowired
+    @Qualifier("tickerMetaAutoCompleteBlockTemplate")
+    RedisTemplate<String, String> tickerMetaAutoCompleteBlockTemplate;
 
     @Test
     public void TEST_DART_TICKER_PROCESSOR(){
@@ -92,6 +101,22 @@ public class DartDataToTickerStockTest {
     @Test
     public void TEST_SAVE_TICKERS(){
         saveTickerStocks();
+    }
+
+    public void saveTickerStocksBlock(){
+        TickerStockBlockRedisService tickerStockRedisService = new TickerStockBlockRedisService(tickerMetaAutoCompleteBlockTemplate, tickerMetaMapBlockTemplate);
+
+        DartDataLoader dartDataLoader = new DartDataLoader();
+        List<TickerStockDto> stockList = dartDataLoader.processTickersBlock();
+
+        tickerStockRedisService.saveAllCompleteTickersBlock(stockList);
+        tickerStockRedisService.saveAllPartialWordTickersBlock(stockList);
+        tickerStockRedisService.saveAllTickerStockBlock(stockList);
+    }
+
+    @Test
+    public void TEST_SAVE_BLOCK_TICKERS(){
+        saveTickerStocksBlock();
     }
 
     @Test
